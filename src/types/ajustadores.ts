@@ -9,3 +9,28 @@ export interface Ajustador {
   incidentesAsignados: number
   estado: StatusVariant
 }
+
+export interface AjustadorResponseDTO {
+  id: string
+  usuario_id: string
+  cedula_profesional: string
+  geolocalizacion_actual: [number, number] | null
+  activo_para_servicio: boolean
+  version: number
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}
+
+export interface AjustadorCreateDTO {
+  nombre: string
+  email: string
+  telefono: string
+  password_temporal: string
+  cedula_profesional: string
+}
+
+export interface AjustadorUpdateDTO {
+  cedula_profesional?: string
+  activo_para_servicio?: boolean
+}

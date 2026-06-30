@@ -1,7 +1,8 @@
 import { api } from './api'
-import type { Expediente } from '../types'
+import { expedienteBackendToFrontend } from './mappers'
+import type { Expediente, SiniestroTecnicoDTO, ExpedienteTecnicoResponseDTO } from '../types'
 
-const MOCK = true
+const MOCK = false
 
 function delay(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms))
@@ -22,7 +23,8 @@ export async function getAll(): Promise<Expediente[]> {
     await delay(300)
     return [...mockData]
   }
-  return api.get<Expediente[]>('/expedientes')
+  const res = await api.get<{ data: SiniestroTecnicoDTO[] }>('/taller/expedientes?offset=0&limit=200')
+  return res.data.map((dto) => expedienteBackendToFrontend(dto))
 }
 
 export async function getById(id: string): Promise<Expediente> {
@@ -32,5 +34,6 @@ export async function getById(id: string): Promise<Expediente> {
     if (!item) throw new Error('Expediente no encontrado')
     return { ...item }
   }
-  return api.get<Expediente>(`/expedientes/${id}`)
+  const res = await api.get<ExpedienteTecnicoResponseDTO>(`/taller/expedientes/${id}`)
+  return expedienteBackendToFrontend(res.siniestro)
 }

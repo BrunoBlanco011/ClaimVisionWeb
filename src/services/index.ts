@@ -7,7 +7,7 @@ export {
   getById as getIncidenteById,
   assignAjustador,
   assignTaller,
-} from './incidentes.service'
+} from './siniestros.service'
 
 export {
   getAll as getExpedientes,
@@ -15,7 +15,6 @@ export {
 } from './expedientes.service'
 
 export {
-  getAll as getPresupuestos,
   create as createPresupuesto,
 } from './presupuestos.service'
 export type { CreatePresupuestoData } from './presupuestos.service'

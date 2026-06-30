@@ -25,3 +25,18 @@ export interface VehicleData {
   plate: string
   expediente: string
 }
+
+export interface GuardarPresupuestoRequestDTO {
+  monto_mano_obra: number
+  monto_refacciones: number
+  observaciones_tecnicas?: string
+}
+
+export interface CotizacionTallerResponseDTO {
+  monto_mano_obra: number
+  monto_refacciones: number
+  monto_total: number
+  desglose_pdf_url: string
+  estatus: string
+  observaciones_tecnicas: string | null
+}

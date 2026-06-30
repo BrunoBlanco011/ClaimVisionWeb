@@ -1,7 +1,16 @@
 import { api } from './api'
-import type { Incidente, IncidenteDetalle, TimelineEvent, EvidenciaFoto, Peritaje } from '../types'
+import { siniestroBackendToFrontend } from './mappers'
+import type {
+  Incidente,
+  IncidenteDetalle,
+  TimelineEvent,
+  SiniestroResponseDTO,
+  AsignarAjustadorDTO,
+  EnviarTallerDTO,
+} from '../types'
 
-const MOCK = true
+const MOCK_LIST = false
+const MOCK_DETAIL = true
 
 function delay(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms))
@@ -18,7 +27,7 @@ const mockIncidentes: Incidente[] = [
   { id: '8', numero: 'INC-2026-008', tipo: 'Colisión múltiple', asegurado: 'Sofía Herrera', fecha: '03/06/2026', estado: 'completado', prioridad: 'Alta' },
 ]
 
-const mockEvidencias: Record<string, EvidenciaFoto[]> = {
+const mockEvidencias: Record<string, { id: string; url: string; descripcion: string; fecha: string }[]> = {
   '1': [
     { id: 'e1', url: 'https://placehold.co/400x300/1e3a5f/fff?text=Frontal', descripcion: 'Vista frontal del vehículo', fecha: '15/06/2026' },
     { id: 'e2', url: 'https://placehold.co/400x300/2563eb/fff?text=Lateral', descripcion: 'Lateral izquierdo', fecha: '15/06/2026' },
@@ -36,7 +45,7 @@ const mockEvidencias: Record<string, EvidenciaFoto[]> = {
   ],
 }
 
-const mockPeritajes: Record<string, Peritaje> = {
+const mockPeritajes: Record<string, { id: string; ajustador: string; fecha: string; montoEstimado: number; descripcion: string; estado: 'pendiente' | 'aprobado' | 'rechazado' }> = {
   '1': { id: 'p1', ajustador: 'Carlos Mendoza', fecha: '16/06/2026', montoEstimado: 15300, descripcion: 'Reemplazo de parachoques delantero, radiador y faro izquierdo. Mano de obra estimada en 8 horas.', estado: 'pendiente' },
   '2': { id: 'p2', ajustador: 'María García', fecha: '15/06/2026', montoEstimado: 28400, descripcion: 'Reparación de 3 paneles con abolladuras. Pintura completa de cofre y techo.', estado: 'aprobado' },
 }
@@ -69,36 +78,39 @@ const mockTimeline: Record<string, TimelineEvent[]> = {
 }
 
 export async function getAll(): Promise<Incidente[]> {
-  if (MOCK) {
+  if (MOCK_LIST) {
     await delay(300)
     return [...mockIncidentes]
   }
-  return api.get<Incidente[]>('/incidentes')
+  const res = await api.get<{ data: SiniestroResponseDTO[] }>('/siniestros?offset=0&limit=200')
+  return res.data.map((dto) => siniestroBackendToFrontend(dto))
 }
 
 export async function getById(id: string): Promise<{ incidente: IncidenteDetalle; timeline: TimelineEvent[] }> {
-  if (MOCK) {
+  if (MOCK_DETAIL) {
     await delay(200)
     const incidente = mockDetalles[id]
     const timeline = mockTimeline[id] ?? []
     if (!incidente) throw new Error('Incidente no encontrado')
     return { incidente, timeline }
   }
-  return api.get<{ incidente: IncidenteDetalle; timeline: TimelineEvent[] }>(`/incidentes/${id}`)
+  return api.get<{ incidente: IncidenteDetalle; timeline: TimelineEvent[] }>(`/siniestros/${id}`)
 }
 
 export async function assignAjustador(incidenteId: string, ajustadorId: string): Promise<void> {
-  if (MOCK) {
+  if (MOCK_LIST) {
     await delay(300)
     return
   }
-  await api.post(`/incidentes/${incidenteId}/asignar`, { ajustadorId })
+  const dto: AsignarAjustadorDTO = { ajustador_id: ajustadorId }
+  await api.post(`/siniestros/${incidenteId}/asignar-ajustador`, dto)
 }
 
 export async function assignTaller(incidenteId: string, tallerId: string): Promise<void> {
-  if (MOCK) {
+  if (MOCK_LIST) {
     await delay(300)
     return
   }
-  await api.post(`/incidentes/${incidenteId}/asignar-taller`, { tallerId })
+  const dto: EnviarTallerDTO = { taller_id: tallerId }
+  await api.post(`/siniestros/${incidenteId}/asignar-taller`, dto)
 }
