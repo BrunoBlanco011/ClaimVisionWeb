@@ -15,3 +15,6 @@ export type { CrudModalProps } from './CrudModal'
 
 export { AuthGuard, GuestGuard } from './AuthGuard'
 export type { AuthGuardProps } from './AuthGuard'
+
+export { InsurerCard } from './InsurerCard'
+export type { InsurerCardProps, PlanTier } from './InsurerCard'

@@ -14,8 +14,12 @@ export function AuthGuard({ requiredRole }: AuthGuardProps) {
   }
 
   if (user!.role !== requiredRole) {
-    const redirect = user!.role === 'taller' ? '/taller/bandeja' : '/aseguradora/dashboard'
-    return <Navigate to={redirect} replace />
+    const redirectMap: Record<string, string> = {
+      taller: '/taller/bandeja',
+      aseguradora: '/aseguradora/dashboard',
+      administrador: '/administrador/dashboard',
+    }
+    return <Navigate to={redirectMap[user!.role] ?? '/login'} replace />
   }
 
   return <Outlet />

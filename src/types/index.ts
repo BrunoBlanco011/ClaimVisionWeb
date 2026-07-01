@@ -8,3 +8,19 @@ export type { Taller, TallerResponseDTO, TallerCreateDTO, TallerUpdateDTO } from
 export type { Trabajo } from './trabajos'
 export type { LoginRequest, LoginResponseDTO } from './auth'
 export type { SiniestroResponseDTO, AsignarAjustadorDTO, EnviarTallerDTO } from './siniestro'
+
+export type { UsuarioSistema, EstatusUsuario } from './usuarios'
+export type { AseguradoraAdmin, EstatusAseguradora } from './aseguradora-admin'
+export type { TallerAdmin, EstatusTallerAdmin } from './taller-admin'
+export type { EventoAuditoria } from './auditoria'
+
+export type {
+  AseguradoraResponseDTO,
+  AseguradoraRequestDTO,
+  UpdateAseguradoraDTO,
+  UpdateSuscripcionDTO,
+  OperadorAseguradoraRequestDTO,
+  PaginatedResponse,
+} from './admin-aseguradoras'
+
+export type { AuditResponse } from './admin-auditoria'

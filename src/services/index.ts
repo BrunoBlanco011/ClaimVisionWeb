@@ -41,3 +41,22 @@ export {
   getAll as getPeritajes,
   getPendingCount as getPeritajesPendientesCount,
 } from './peritajes.service'
+
+export {
+  getAll as getAdminAseguradoras,
+  getById as getAdminAseguradoraById,
+  create as createAdminAseguradora,
+  update as updateAdminAseguradora,
+  remove as removeAdminAseguradora,
+  cambiarSuscripcion as cambiarSuscripcionAseguradora,
+  verificar as verificarAseguradora,
+  crearOperador as crearOperadorAseguradora,
+} from './admin/aseguradoras.service'
+
+export {
+  getAll as getAdminAuditoria,
+} from './admin/auditoria.service'
+
+export {
+  bloqueoArco as adminBloqueoArco,
+} from './admin/usuarios.service'

@@ -40,6 +40,16 @@
   --color-warning-500: #f59e0b;
   --color-warning-600: #d97706;
 
+  /* Admin accent — naranja */
+  --color-admin-50:   #fff7ed;
+  --color-admin-100:  #ffedd5;
+  --color-admin-200:  #fed7aa;
+  --color-admin-300:  #fdba74;
+  --color-admin-400:  #fb923c;
+  --color-admin-500:  #f97316;
+  --color-admin-600:  #ea580c;
+  --color-admin-700:  #c2410c;
+
   /* Tipografía */
   --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-size-xs:   0.75rem;

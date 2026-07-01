@@ -3,6 +3,11 @@ import type { AjustadorResponseDTO, AjustadorCreateDTO, Ajustador } from '../typ
 import type { SiniestroResponseDTO } from '../types'
 import type { SiniestroTecnicoDTO, Expediente } from '../types'
 import type { StatusVariant } from '../types'
+import type { AseguradoraResponseDTO, AseguradoraAdmin, AseguradoraRequestDTO } from '../types'
+import type { AuditResponse, EventoAuditoria } from '../types'
+import type { RoleVariant } from '../components/atoms/RoleBadge'
+import type { ActionVariant } from '../components/atoms/ActionBadge'
+import type { PlanTier } from '../components/organisms/InsurerCard'
 
 const STATUS_MAP: Record<string, StatusVariant> = {
   REPORTADO_PRELIMINAR: 'pendiente',
@@ -94,5 +99,62 @@ export function expedienteBackendToFrontend(dto: SiniestroTecnicoDTO): Expedient
     estado: STATUS_TALLER_MAP[dto.estatus] ?? ('pendiente' as StatusVariant),
     vehiculo: `${dto.vehiculo_marca} ${dto.vehiculo_modelo} ${dto.vehiculo_anio}`,
     placa: '',
+  }
+}
+
+const PLAN_MAP: Record<string, PlanTier> = {
+  Basico: 'Básico',
+  Pro: 'Pro',
+  Enterprise: 'Enterprise',
+}
+
+export function aseguradoraAdminBackendToFrontend(dto: AseguradoraResponseDTO): AseguradoraAdmin {
+  return {
+    id: dto.id,
+    nombre: dto.nombre,
+    rfc: dto.rfc,
+    estatus: dto.estatus_comercial === 'Activo' ? 'Activa' : 'Inactiva',
+    operadores: 0,
+    ajustadores: 0,
+    siniestrosActivos: 0,
+    talleres: 0,
+    plan: PLAN_MAP[dto.plan_suscripcion] ?? 'Básico',
+  }
+}
+
+const ACTION_MAP: Record<string, ActionVariant> = {
+  LOGIN: 'LOGIN',
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  DELETE: 'DELETE',
+  ASSIGN: 'ASSIGN',
+}
+
+export function eventoAuditoriaBackendToFrontend(dto: AuditResponse): EventoAuditoria {
+  return {
+    id: dto.id ?? '',
+    fechaHora: new Date(dto.created_at).toLocaleString('es-MX'),
+    usuario: dto.usuario_id ?? '—',
+    rolUsuario: 'Administrador_Global' as RoleVariant,
+    accion: ACTION_MAP[dto.accion_realizada ?? ''] ?? 'UPDATE',
+    tablaAfectada: dto.evento_modulo ?? '—',
+    detalle: dto.metadata_context ? JSON.stringify(dto.metadata_context) : '—',
+    ip: dto.direccion_ip ?? undefined,
+  }
+}
+
+export function aseguradoraAdminToCreateDTO(data: {
+  nombre: string
+  rfc: string
+  dominioCorreo: string
+  emailContactoLegal: string
+  plan: string
+}): AseguradoraRequestDTO {
+  return {
+    nombre: data.nombre,
+    rfc: data.rfc,
+    dominio_correo: data.dominioCorreo,
+    plan_suscripcion: data.plan,
+    contacto_legal_email: data.emailContactoLegal,
   }
 }

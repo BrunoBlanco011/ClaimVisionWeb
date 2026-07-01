@@ -25,7 +25,7 @@ export function AppLayout({ role }: AppLayoutProps) {
       <div className="flex-1 flex flex-col min-w-0">
         <TopBar
           userName={user?.name ?? 'Usuario'}
-          userRole={role === 'taller' ? 'Taller' : 'Aseguradora'}
+          userRole={role === 'taller' ? 'Taller' : role === 'administrador' ? 'Administrador Global' : 'Aseguradora'}
           onLogout={handleLogout}
         />
 

@@ -1,7 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { LoginPage } from './pages/shared/LoginPage'
-import { LoginTallerPage } from './pages/taller/LoginTallerPage'
-import { LoginAseguradoraPage } from './pages/aseguradora/LoginAseguradoraPage'
 import { NotFoundPage } from './pages/shared/NotFoundPage'
 import { AppLayout } from './components/templates/AppLayout'
 import { AuthGuard, GuestGuard } from './components/organisms/AuthGuard'
@@ -17,6 +15,12 @@ import { DetalleIncidentePage } from './pages/aseguradora/DetalleIncidentePage'
 import { GestionAjustadoresPage } from './pages/aseguradora/GestionAjustadoresPage'
 import { GestionTalleresPage } from './pages/aseguradora/GestionTalleresPage'
 import { ConfiguracionPage as AseguradoraConfig } from './pages/aseguradora/ConfiguracionPage'
+import { PanelGlobalPage } from './pages/administrador/PanelGlobalPage'
+import { GestionUsuariosPage } from './pages/administrador/GestionUsuariosPage'
+import { AseguradorasPage } from './pages/administrador/AseguradorasPage'
+import { GestionTalleresAdminPage } from './pages/administrador/GestionTalleresAdminPage'
+import { AuditoriaSistemaPage } from './pages/administrador/AuditoriaSistemaPage'
+import { ConfiguracionPage as AdminConfig } from './pages/administrador/ConfiguracionPage'
 
 export const router = createBrowserRouter([
   {
@@ -30,14 +34,6 @@ export const router = createBrowserRouter([
       {
         path: '/login',
         element: <LoginPage />,
-      },
-      {
-        path: '/login/taller',
-        element: <LoginTallerPage />,
-      },
-      {
-        path: '/login/aseguradora',
-        element: <LoginAseguradoraPage />,
       },
     ],
   },
@@ -76,6 +72,25 @@ export const router = createBrowserRouter([
           { path: 'historico', element: <HistoricoTrabajosPage /> },
           { path: 'historico/:id', element: <DetalleHistoricoPage /> },
           { path: 'configuracion', element: <TallerConfig /> },
+        ],
+      },
+    ],
+  },
+
+  {
+    element: <AuthGuard requiredRole="administrador" />,
+    children: [
+      {
+        path: '/administrador',
+        element: <AppLayout role="administrador" />,
+        children: [
+          { index: true, element: <Navigate to="dashboard" replace /> },
+          { path: 'dashboard', element: <PanelGlobalPage /> },
+          { path: 'usuarios', element: <GestionUsuariosPage /> },
+          { path: 'aseguradoras', element: <AseguradorasPage /> },
+          { path: 'talleres', element: <GestionTalleresAdminPage /> },
+          { path: 'auditoria', element: <AuditoriaSistemaPage /> },
+          { path: 'configuracion', element: <AdminConfig /> },
         ],
       },
     ],

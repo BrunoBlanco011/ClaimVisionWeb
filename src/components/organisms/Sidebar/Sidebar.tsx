@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Logo } from '../../atoms/Logo'
 
-export type UserRole = 'aseguradora' | 'taller'
+export type UserRole = 'aseguradora' | 'taller' | 'administrador'
 
 export interface NavItem {
   label: string
@@ -29,6 +29,14 @@ const navItems: Record<UserRole, NavItem[]> = {
     { label: 'Presupuesto Enviado', path: '/taller/presupuesto-enviado', icon: <SentIcon /> },
     { label: 'Histórico de Trabajos', path: '/taller/historico', icon: <HistoryIcon /> },
     { label: 'Configuración', path: '/taller/configuracion', icon: <CogIcon /> },
+  ],
+  administrador: [
+    { label: 'Panel Global', path: '/administrador/dashboard', icon: <DashboardIcon /> },
+    { label: 'Usuarios', path: '/administrador/usuarios', icon: <UsersIcon /> },
+    { label: 'Aseguradoras', path: '/administrador/aseguradoras', icon: <ShieldIcon /> },
+    { label: 'Talleres', path: '/administrador/talleres', icon: <WorkshopIcon /> },
+    { label: 'Auditoría', path: '/administrador/auditoria', icon: <AuditIcon /> },
+    { label: 'Configuración', path: '/administrador/configuracion', icon: <CogIcon /> },
   ],
 }
 
@@ -138,6 +146,36 @@ function CogIcon() {
   )
 }
 
+function UsersIcon() {
+  return (
+    <NavIcon>
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+    </NavIcon>
+  )
+}
+
+function ShieldIcon() {
+  return (
+    <NavIcon>
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+    </NavIcon>
+  )
+}
+
+function AuditIcon() {
+  return (
+    <NavIcon>
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+      </svg>
+    </NavIcon>
+  )
+}
+
 function CloseIcon() {
   return (
     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -157,6 +195,7 @@ function MenuIcon() {
 export function Sidebar({ role }: SidebarProps) {
   const [open, setOpen] = useState(false)
   const items = navItems[role]
+  const isAdmin = role === 'administrador'
 
   const sidebarContent = (
     <>
@@ -183,7 +222,9 @@ export function Sidebar({ role }: SidebarProps) {
               [
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-white/10 text-white'
+                  ? isAdmin
+                    ? 'bg-admin-500/10 text-admin-500'
+                    : 'bg-white/10 text-white'
                   : 'text-neutral-400 hover:text-white hover:bg-white/5',
               ].join(' ')
             }

@@ -8,6 +8,7 @@ const MOCK = false
 const ROLE_MAP: Record<string, UserRole> = {
   Operador_Aseguradora: 'aseguradora',
   Operador_Taller: 'taller',
+  Administrador_Global: 'administrador',
 }
 
 function delay(ms: number): Promise<void> {

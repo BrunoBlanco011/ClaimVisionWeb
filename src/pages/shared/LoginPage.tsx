@@ -6,9 +6,10 @@ import { useAuth } from '../../contexts/useAuth'
 import { login } from '../../services/auth.service'
 import type { LoginCredentials } from '../../components/organisms/LoginForm'
 
-const roleRedirect = {
-  aseguradora: '/aseguradora/dashboard' as const,
-  taller: '/taller/bandeja' as const,
+const roleRedirect: Record<string, string> = {
+  aseguradora: '/aseguradora/dashboard',
+  taller: '/taller/bandeja',
+  administrador: '/administrador/dashboard',
 }
 
 export function LoginPage() {
