@@ -23,7 +23,7 @@ export async function getAll(): Promise<Expediente[]> {
     await delay(300)
     return [...mockData]
   }
-  const res = await api.get<{ data: SiniestroTecnicoDTO[] }>('/taller/expedientes?offset=0&limit=200')
+  const res = await api.get<{ data: SiniestroTecnicoDTO[] }>('/taller/ordenes?offset=0&limit=200')
   return res.data.map((dto) => expedienteBackendToFrontend(dto))
 }
 
@@ -34,6 +34,6 @@ export async function getById(id: string): Promise<Expediente> {
     if (!item) throw new Error('Expediente no encontrado')
     return { ...item }
   }
-  const res = await api.get<ExpedienteTecnicoResponseDTO>(`/taller/expedientes/${id}`)
+  const res = await api.get<ExpedienteTecnicoResponseDTO>(`/taller/siniestros/${id}`)
   return expedienteBackendToFrontend(res.siniestro)
 }

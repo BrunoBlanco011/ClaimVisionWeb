@@ -82,7 +82,7 @@ export async function getAll(): Promise<Incidente[]> {
     await delay(300)
     return [...mockIncidentes]
   }
-  const res = await api.get<{ data: SiniestroResponseDTO[] }>('/siniestros?offset=0&limit=200')
+  const res = await api.get<{ data: SiniestroResponseDTO[] }>('/aseguradora/siniestros?offset=0&limit=200')
   return res.data.map((dto) => siniestroBackendToFrontend(dto))
 }
 
@@ -94,7 +94,7 @@ export async function getById(id: string): Promise<{ incidente: IncidenteDetalle
     if (!incidente) throw new Error('Incidente no encontrado')
     return { incidente, timeline }
   }
-  return api.get<{ incidente: IncidenteDetalle; timeline: TimelineEvent[] }>(`/siniestros/${id}`)
+  return api.get<{ incidente: IncidenteDetalle; timeline: TimelineEvent[] }>(`/aseguradora/siniestros/${id}`)
 }
 
 export async function assignAjustador(incidenteId: string, ajustadorId: string): Promise<void> {
@@ -103,7 +103,7 @@ export async function assignAjustador(incidenteId: string, ajustadorId: string):
     return
   }
   const dto: AsignarAjustadorDTO = { ajustador_id: ajustadorId }
-  await api.post(`/siniestros/${incidenteId}/asignar-ajustador`, dto)
+  await api.post(`/aseguradora/siniestros/${incidenteId}/asignar-ajustador`, dto)
 }
 
 export async function assignTaller(incidenteId: string, tallerId: string): Promise<void> {
@@ -112,5 +112,5 @@ export async function assignTaller(incidenteId: string, tallerId: string): Promi
     return
   }
   const dto: EnviarTallerDTO = { taller_id: tallerId }
-  await api.post(`/siniestros/${incidenteId}/asignar-taller`, dto)
+  await api.post(`/aseguradora/siniestros/${incidenteId}/enviar-taller`, dto)
 }

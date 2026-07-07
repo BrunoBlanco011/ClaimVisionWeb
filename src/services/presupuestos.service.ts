@@ -51,12 +51,13 @@ export async function create(data: CreatePresupuestoData): Promise<Presupuesto> 
     }
     return { ...nuevo }
   }
+  if (!data.expedienteId) throw new Error('Se requiere el identificador del siniestro para crear la cotización')
   const dto: GuardarPresupuestoRequestDTO = {
     monto_mano_obra: data.hours * data.hourlyRate,
     monto_refacciones: data.parts.reduce((s, p) => s + p.quantity * p.unitPrice, 0),
     observaciones_tecnicas: data.parts.map((p) => `${p.code}: ${p.description} x${p.quantity} = $${(p.quantity * p.unitPrice).toFixed(2)}`).join('\n'),
   }
-  const res = await api.post<CotizacionTallerResponseDTO>('/taller/presupuestos/guardar', dto)
+  const res = await api.post<CotizacionTallerResponseDTO>(`/taller/siniestros/${data.expedienteId}/cotizacion`, dto)
   return {
     id: '',
     numero: '',

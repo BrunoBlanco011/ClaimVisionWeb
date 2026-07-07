@@ -69,7 +69,7 @@ export function ElaboracionPresupuestoPage() {
     if (!canSubmit) return
     setSubmitting(true)
     try {
-      await createPresupuesto({ vehicle, parts, hours, hourlyRate })
+      await createPresupuesto({ vehicle, parts, hours, hourlyRate, expedienteId: id })
       setVehicle({ brand: '', model: '', year: '', plate: '', expediente: '' })
       setParts([])
       setHours(0)

@@ -5,66 +5,70 @@ Conectar las 5 vistas del administrador en el frontend con los endpoints del bac
 
 ---
 
-## Fase 0: Correcciones a conexiones existentes
+## Fase 0: Correcciones a conexiones existentes ✅ (implementada)
 
-### 0.1 Talleres Service (`src/services/talleres.service.ts`)
+> **Nota de arquitectura:** Todas las rutas del backend viven bajo el prefijo global `/api/v1`
+> (ver `Endpoints.md`). Ese prefijo se centraliza en el base URL del cliente HTTP
+> (`src/services/api.ts` → `http://localhost:8000/api/v1`), por lo que en cada servicio
+> las rutas se escriben **relativas** (p. ej. `/aseguradora/talleres`). Las columnas
+> "Ruta correcta" muestran el endpoint completo resultante.
 
-**Problema:** Ruta incorrecta + formato de respuesta incorrecto.
+### 0.1 Talleres Service (`src/services/talleres.service.ts`) ✅
 
-| Método | Ruta actual (ERRADA) | Ruta correcta |
-|--------|---------------------|---------------|
-| `getAll` | `GET /aseguradora/talleres` | `GET /aseguradora/v1/aseguradora/talleres?offset=0&limit=200` |
-| `create` | `POST /aseguradora/talleres` | `POST /aseguradora/v1/aseguradora/talleres` |
-| `update` | `PUT /aseguradora/talleres/{id}` | `PUT /aseguradora/v1/aseguradora/talleres/{id}` |
-| `remove` | `DELETE /aseguradora/talleres/{id}` | `DELETE /aseguradora/v1/aseguradora/talleres/{id}` |
+Las rutas ya eran correctas; solo faltaba el prefijo de versión, ahora resuelto por el base URL.
 
-**Formato de respuesta:** Backend devuelve `List[TallerResponseDTO]` directamente (un array), no `{ data: [...] }`. Cambiar `res.data.map(...)` → `res.map(...)`.
+| Método | Ruta en el servicio | Endpoint completo |
+|--------|---------------------|-------------------|
+| `getAll` | `GET /aseguradora/talleres?offset=0&limit=200` | `GET /api/v1/aseguradora/talleres` |
+| `create` | `POST /aseguradora/talleres` | `POST /api/v1/aseguradora/talleres` |
+| `update` | `PUT /aseguradora/talleres/{id}` | `PUT /api/v1/aseguradora/talleres/{id}` |
+| `remove` | `DELETE /aseguradora/talleres/{id}` | `DELETE /api/v1/aseguradora/talleres/{id}` |
 
-### 0.2 Ajustadores Service (`src/services/ajustadores.service.ts`)
+### 0.2 Ajustadores Service (`src/services/ajustadores.service.ts`) ✅
 
-**Problema:** Ruta incorrecta + formato de respuesta incorrecto.
+Las rutas ya eran correctas; solo faltaba el prefijo de versión, ahora resuelto por el base URL.
 
-| Método | Ruta actual (ERRADA) | Ruta correcta |
-|--------|---------------------|---------------|
-| `getAll` | `GET /aseguradora/ajustadores` | `GET /aseguradora/v1/aseguradora/ajustadores?offset=0&limit=200` |
-| `create` | `POST /aseguradora/ajustadores` | `POST /aseguradora/v1/aseguradora/ajustadores` |
-| `update` | `PUT /aseguradora/ajustadores/{id}` | `PUT /aseguradora/v1/aseguradora/ajustadores/{id}` |
-| `remove` | `DELETE /aseguradora/ajustadores/{id}` | `DELETE /aseguradora/v1/aseguradora/ajustadores/{id}` |
+| Método | Ruta en el servicio | Endpoint completo |
+|--------|---------------------|-------------------|
+| `getAll` | `GET /aseguradora/ajustadores?offset=0&limit=200` | `GET /api/v1/aseguradora/ajustadores` |
+| `create` | `POST /aseguradora/ajustadores` | `POST /api/v1/aseguradora/ajustadores` |
+| `update` | `PUT /aseguradora/ajustadores/{id}` | `PUT /api/v1/aseguradora/ajustadores/{id}` |
+| `remove` | `DELETE /aseguradora/ajustadores/{id}` | `DELETE /api/v1/aseguradora/ajustadores/{id}` |
 
-**Formato de respuesta:** Backend devuelve `List[AjustadorResponseDTO]` directamente. Cambiar `res.data.map(...)` → `res.map(...)`.
+### 0.3 Siniestros Service (`src/services/siniestros.service.ts`) ✅
 
-### 0.3 Siniestros Service (`src/services/siniestros.service.ts`)
+**Correcciones aplicadas:**
+- Los endpoints de listar/detalle/asignar son del **módulo aseguradora**, no del módulo siniestro.
+- La acción `asignar-taller` se renombró a `enviar-taller` para coincidir con el backend.
 
-**Problemas:**
-- Los endpoints de listar y asignar son del **módulo aseguradora**, no del módulo siniestro
-- El nombre `asignar-taller` no coincide con el backend (`enviar-taller`)
-- Formato de respuesta incorrecto
+| Método | Ruta anterior (ERRADA) | Ruta corregida | Endpoint completo |
+|--------|------------------------|----------------|-------------------|
+| `getAll` | `GET /siniestros` | `GET /aseguradora/siniestros?offset=0&limit=200` | `GET /api/v1/aseguradora/siniestros` |
+| `getById` | `GET /siniestros/{id}` | `GET /aseguradora/siniestros/{id}` | `GET /api/v1/aseguradora/siniestros/{id}` |
+| `assignAjustador` | `POST /siniestros/{id}/asignar-ajustador` | `POST /aseguradora/siniestros/{id}/asignar-ajustador` | `POST /api/v1/aseguradora/siniestros/{id}/asignar-ajustador` |
+| `assignTaller` | `POST /siniestros/{id}/asignar-taller` | `POST /aseguradora/siniestros/{id}/enviar-taller` | `POST /api/v1/aseguradora/siniestros/{id}/enviar-taller` |
 
-| Método | Ruta actual (ERRADA) | Ruta correcta |
-|--------|---------------------|---------------|
-| `getAll` | `GET /siniestros` | `GET /aseguradora/v1/aseguradora/siniestros?offset=0&limit=200` |
-| `assignAjustador` | `POST /siniestros/{id}/asignar-ajustador` | `POST /aseguradora/v1/aseguradora/siniestros/{id}/asignar-ajustador` |
-| `assignTaller` | `POST /siniestros/{id}/asignar-taller` | `POST /aseguradora/v1/aseguradora/siniestros/{id}/enviar-taller` |
+### 0.4 Expedientes Service (`src/services/expedientes.service.ts`) ✅
 
-**Formato de respuesta:** Backend devuelve `List[SiniestroResponseDTO]` directamente. Cambiar `res.data.map(...)` → `res.map(...)`.
+**Correcciones aplicadas:** en el módulo taller el listado es `ordenes` y el detalle es `siniestros/{id}`.
 
-### 0.4 Expedientes Service (`src/services/expedientes.service.ts`)
+| Método | Ruta anterior (ERRADA) | Ruta corregida | Endpoint completo |
+|--------|------------------------|----------------|-------------------|
+| `getAll` | `GET /taller/expedientes` | `GET /taller/ordenes?offset=0&limit=200` | `GET /api/v1/taller/ordenes` |
+| `getById` | `GET /taller/expedientes/{id}` | `GET /taller/siniestros/{id}` | `GET /api/v1/taller/siniestros/{id}` |
 
-**Problema:** Formato de respuesta incorrecto.
+### 0.5 Presupuestos Service (`src/services/presupuestos.service.ts`) ✅
 
-Backend devuelve `List[SiniestroTecnicoDTO]` directamente. Cambiar `res.data.map(...)` → `res.map(...)`.
+**Correcciones aplicadas:**
+- La ruta ahora apunta a la cotización del siniestro e incluye su ID en la URL.
+- La función `create` recibe `expedienteId` (el ID del siniestro) y lo coloca en la URL;
+  `ElaboracionPresupuestoPage.tsx` lo pasa desde `useParams`.
 
-### 0.5 Presupuestos Service (`src/services/presupuestos.service.ts`)
+| Método | Ruta anterior (ERRADA) | Ruta corregida | Endpoint completo |
+|--------|------------------------|----------------|-------------------|
+| `create` | `POST /taller/presupuestos/guardar` | `POST /taller/siniestros/{expedienteId}/cotizacion` | `POST /api/v1/taller/siniestros/{id}/cotizacion` |
 
-**Problemas:**
-- Ruta incorrecta y falta el ID del expediente en la URL
-- La función `create` no recibe el `expedienteId`
-
-| Método | Ruta actual (ERRADA) | Ruta correcta |
-|--------|---------------------|---------------|
-| `create` | `POST /taller/presupuestos/guardar` | `POST /taller/expedientes/{expedienteId}/presupuesto` |
-
-**Cambio estructural:** La función `create` debe aceptar `expedienteId` como parámetro y colocarlo en la URL.
+**Cambio estructural:** la función `create` acepta `expedienteId` como parámetro y lo coloca en la URL.
 
 ---
 
