@@ -68,6 +68,7 @@ export const router = createBrowserRouter([
           { path: 'bandeja', element: <BandejaExpedientesPage /> },
           { path: 'presupuesto', element: <ElaboracionPresupuestoPage /> },
           { path: 'presupuesto/:id', element: <ElaboracionPresupuestoPage /> },
+          { path: 'presupuesto-enviado', element: <BandejaExpedientesPage /> },
 
           { path: 'historico', element: <HistoricoTrabajosPage /> },
           { path: 'historico/:id', element: <DetalleHistoricoPage /> },

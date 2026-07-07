@@ -2,45 +2,38 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DataTable, StatusBadge, type Column } from '../../components/organisms/DataTable'
 import { SearchInput } from '../../components/molecules/SearchInput'
-import { getTrabajos } from '../../services'
-import type { Trabajo, StatusVariant } from '../../types'
+import { getAll as getExpedientes } from '../../api/taller/ordenes/ordenes.routes'
+import type { Expediente } from '../../api/taller/ordenes/ordenes.schemas'
 
 const PAGE_SIZE = 5
 
-const statusOptions = [
-  { value: '', label: 'Todos los estados' },
-  { value: 'completado', label: 'Completado' },
-  { value: 'cancelado', label: 'Cancelado' },
-]
-
-const columns: Column<Trabajo>[] = [
+const columns: Column<Expediente>[] = [
   { key: 'numero', header: 'N° Expediente', className: 'font-medium text-neutral-900', sortable: true },
   { key: 'vehiculo', header: 'Vehículo', sortable: true },
-  { key: 'taller', header: 'Taller', sortable: true },
-  { key: 'fechaInicio', header: 'Fecha Inicio', sortable: true },
-  { key: 'fechaFin', header: 'Fecha Fin', sortable: true },
-  { key: 'monto', header: 'Monto', className: 'font-medium', sortable: true },
+  { key: 'placa', header: 'Placa', sortable: true },
+  { key: 'fechaIngreso', header: 'Fecha', sortable: true },
   {
     key: 'estado',
     header: 'Estado',
     sortable: true,
-    render: (item) => <StatusBadge variant={item.estado as StatusVariant} size="sm" />,
+    render: (item) => <StatusBadge variant={item.estado} size="sm" />,
   },
 ]
 
 export function HistoricoTrabajosPage() {
   const navigate = useNavigate()
-  const [data, setData] = useState<Trabajo[]>([])
+  const [data, setData] = useState<Expediente[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
   const [page, setPage] = useState(1)
 
   useEffect(() => {
-    getTrabajos()
+    getExpedientes()
       .then((result) => {
-        setData(result)
+        // Trabajos concluidos = expedientes que llegaron a Trabajo_Concluido/Listo_Para_Entrega/Entregado
+        // (todos mapean a StatusVariant 'completado' — ver STATUS_TALLER_MAP en services/mappers.ts).
+        setData(result.filter((e) => e.estado === 'completado'))
         setIsLoading(false)
       })
       .catch(() => {
@@ -53,22 +46,20 @@ export function HistoricoTrabajosPage() {
     return data.filter((item) => {
       if (search) {
         const q = search.toLowerCase()
-        if (!item.numero.toLowerCase().includes(q) && !item.vehiculo.toLowerCase().includes(q) && !item.taller.toLowerCase().includes(q)) return false
+        if (!item.numero.toLowerCase().includes(q) && !item.vehiculo.toLowerCase().includes(q) && !item.placa.toLowerCase().includes(q)) return false
       }
-      if (statusFilter && item.estado !== statusFilter) return false
       return true
     })
-  }, [search, statusFilter, data])
+  }, [search, data])
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-  const hasFilters = search || statusFilter
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold text-neutral-900">Histórico de Trabajos</h1>
-        <p className="text-sm text-neutral-500 mt-1">Consulta el historial completo de trabajos realizados.</p>
+        <p className="text-sm text-neutral-500 mt-1">Consulta el historial de trabajos concluidos.</p>
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
@@ -76,20 +67,11 @@ export function HistoricoTrabajosPage() {
           <SearchInput
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-            placeholder="Buscar por expediente, vehículo o taller…"
+            placeholder="Buscar por expediente, vehículo o placa…"
           />
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
-          className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-600"
-        >
-          {statusOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
-        {hasFilters && (
-          <button type="button" onClick={() => { setSearch(''); setStatusFilter(''); setPage(1) }} className="text-sm text-primary-700 hover:text-primary-600 underline">
+        {search && (
+          <button type="button" onClick={() => { setSearch(''); setPage(1) }} className="text-sm text-primary-700 hover:text-primary-600 underline">
             Limpiar filtros
           </button>
         )}
@@ -108,7 +90,7 @@ export function HistoricoTrabajosPage() {
           data={paginated}
           keyExtractor={(item) => item.id}
           isLoading={isLoading}
-          emptyMessage="No hay trabajos registrados"
+          emptyMessage="No hay trabajos concluidos"
           currentPage={page}
           totalPages={totalPages}
           totalItems={filtered.length}

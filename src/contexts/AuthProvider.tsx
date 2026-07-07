@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, type ReactNode } from 'react'
 import { AuthContext } from './AuthContext'
-import { getCurrentUser } from '../services/auth.service'
+import { getCurrentUser } from '../api/auth/auth.routes'
 import type { User } from './types'
 
 function loadUser(): User | null {

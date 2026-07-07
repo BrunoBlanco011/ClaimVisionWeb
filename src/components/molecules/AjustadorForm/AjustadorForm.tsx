@@ -6,14 +6,16 @@ export interface AjustadorFormData {
   email: string
   telefono: string
   especialidad: string
+  password_temporal: string
 }
 
 export interface AjustadorFormProps {
   data: AjustadorFormData
   onChange: (data: AjustadorFormData) => void
+  isEditing?: boolean
 }
 
-export function AjustadorForm({ data, onChange }: AjustadorFormProps) {
+export function AjustadorForm({ data, onChange, isEditing = false }: AjustadorFormProps) {
   const set = (field: keyof AjustadorFormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     onChange({ ...data, [field]: e.target.value })
   }
@@ -51,6 +53,13 @@ export function AjustadorForm({ data, onChange }: AjustadorFormProps) {
           <option value="Granizo">Granizo</option>
         </select>
       </div>
+
+      {!isEditing && (
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="aj-password" required>Contraseña temporal</Label>
+          <Input id="aj-password" type="password" minLength={8} value={data.password_temporal} onChange={set('password_temporal')} placeholder="Mínimo 8 caracteres" />
+        </div>
+      )}
     </>
   )
 }

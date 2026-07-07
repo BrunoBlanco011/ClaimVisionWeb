@@ -2,7 +2,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import { Sidebar, type UserRole } from '../../organisms/Sidebar'
 import { TopBar } from '../../organisms/TopBar'
 import { useAuth } from '../../../contexts/useAuth'
-import { logout as serviceLogout } from '../../../services/auth.service'
+import { logout as serviceLogout } from '../../../api/auth/auth.routes'
 
 export interface AppLayoutProps {
   role: UserRole

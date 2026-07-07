@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { InsurerCard, type PlanTier } from '../../components/organisms/InsurerCard'
 import { CrudModal } from '../../components/organisms/CrudModal'
 import { AseguradoraForm, type AseguradoraFormData } from '../../components/molecules/AseguradoraForm'
-import { getAdminAseguradoras, createAdminAseguradora } from '../../services'
+import { getAll as getAdminAseguradoras, create as createAdminAseguradora } from '../../api/admin/aseguradoras/aseguradoras.routes'
 
 interface AseguradoraData {
   id: string

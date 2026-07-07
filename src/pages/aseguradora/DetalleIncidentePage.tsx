@@ -1,9 +1,20 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { StatusBadge } from '../../components/atoms/StatusBadge'
-import { getIncidenteById, assignAjustador, assignTaller, getAjustadores, getTalleres } from '../../services'
+import {
+  getById as getIncidenteById,
+  assignAjustador,
+  assignTaller,
+  autorizarEntrega,
+  aprobarCotizacion,
+  rechazarCotizacion,
+} from '../../api/aseguradora/siniestros/siniestros.routes'
+import { getAll as getAjustadores } from '../../api/aseguradora/ajustadores/ajustadores.routes'
+import { getAll as getTalleres } from '../../api/aseguradora/talleres/talleres.routes'
 import { useToast } from '../../contexts/Toast'
-import type { IncidenteDetalle, TimelineEvent, Ajustador, Taller } from '../../types'
+import type { IncidenteDetalle, TimelineEvent } from '../../api/aseguradora/siniestros/siniestros.schemas'
+import type { Ajustador } from '../../api/aseguradora/ajustadores/ajustadores.schemas'
+import type { Taller } from '../../api/aseguradora/talleres/talleres.schemas'
 
 function formatCurrency(n: number): string {
   return `$${n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -40,6 +51,9 @@ export function DetalleIncidentePage() {
   const [tallerId, setTallerId] = useState('')
   const [assigningTaller, setAssigningTaller] = useState(false)
 
+  const [processingEntrega, setProcessingEntrega] = useState(false)
+  const [processingCotizacion, setProcessingCotizacion] = useState(false)
+
   useEffect(() => {
     setIsLoading(true)
     setNotFound(false)
@@ -65,9 +79,7 @@ export function DetalleIncidentePage() {
       await assignAjustador(id, ajustadorId)
       addToast('success', 'Ajustador asignado correctamente')
       setAjustadorId('')
-      const [incResult] = await Promise.all([getIncidenteById(id)])
-      setIncidente(incResult.incidente)
-      setEvents(incResult.timeline)
+      await refreshIncidente()
     } catch {
       addToast('error', 'Error al asignar ajustador')
     } finally {
@@ -82,13 +94,58 @@ export function DetalleIncidentePage() {
       await assignTaller(id, tallerId)
       addToast('success', 'Taller asignado correctamente')
       setTallerId('')
-      const [incResult] = await Promise.all([getIncidenteById(id)])
-      setIncidente(incResult.incidente)
-      setEvents(incResult.timeline)
+      await refreshIncidente()
     } catch {
       addToast('error', 'Error al asignar taller')
     } finally {
       setAssigningTaller(false)
+    }
+  }
+
+  const refreshIncidente = async () => {
+    const incResult = await getIncidenteById(id)
+    setIncidente(incResult.incidente)
+    setEvents(incResult.timeline)
+  }
+
+  const handleAutorizarEntrega = async () => {
+    setProcessingEntrega(true)
+    try {
+      await autorizarEntrega(id)
+      addToast('success', 'Entrega autorizada correctamente')
+      await refreshIncidente()
+    } catch {
+      addToast('error', 'Error al autorizar la entrega')
+    } finally {
+      setProcessingEntrega(false)
+    }
+  }
+
+  const handleAprobarCotizacion = async () => {
+    if (!incidente?.cotizacionId) return
+    setProcessingCotizacion(true)
+    try {
+      await aprobarCotizacion(incidente.cotizacionId)
+      addToast('success', 'Cotización aprobada correctamente')
+      await refreshIncidente()
+    } catch {
+      addToast('error', 'Error al aprobar la cotización')
+    } finally {
+      setProcessingCotizacion(false)
+    }
+  }
+
+  const handleRechazarCotizacion = async () => {
+    if (!incidente?.cotizacionId) return
+    setProcessingCotizacion(true)
+    try {
+      await rechazarCotizacion(incidente.cotizacionId)
+      addToast('success', 'Cotización rechazada')
+      await refreshIncidente()
+    } catch {
+      addToast('error', 'Error al rechazar la cotización')
+    } finally {
+      setProcessingCotizacion(false)
     }
   }
 
@@ -189,6 +246,46 @@ export function DetalleIncidentePage() {
                   <p className="text-sm text-neutral-700 leading-relaxed">{incidente.peritaje.descripcion}</p>
                 </div>
               </div>
+            </section>
+          )}
+
+          {incidente.cotizacionId && incidente.cotizacionEstatus === 'Pendiente_Aprobacion' && (
+            <section className="bg-white rounded-xl border border-neutral-200 p-6">
+              <h2 className="text-lg font-semibold text-neutral-900 mb-4">Cotización del Taller</h2>
+              <p className="text-sm text-neutral-500 mb-4">La cotización enviada por el taller está pendiente de aprobación.</p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  disabled={processingCotizacion}
+                  onClick={handleAprobarCotizacion}
+                  className="px-4 py-2 bg-success-600 text-white text-sm font-medium rounded-md hover:bg-success-700 transition-colors disabled:opacity-50"
+                >
+                  {processingCotizacion ? 'Procesando…' : 'Aprobar Cotización'}
+                </button>
+                <button
+                  type="button"
+                  disabled={processingCotizacion}
+                  onClick={handleRechazarCotizacion}
+                  className="px-4 py-2 bg-error-600 text-white text-sm font-medium rounded-md hover:bg-error-700 transition-colors disabled:opacity-50"
+                >
+                  {processingCotizacion ? 'Procesando…' : 'Rechazar Cotización'}
+                </button>
+              </div>
+            </section>
+          )}
+
+          {incidente.estatusRaw === 'Listo_Para_Entrega' && (
+            <section className="bg-white rounded-xl border border-neutral-200 p-6">
+              <h2 className="text-lg font-semibold text-neutral-900 mb-4">Entrega del Vehículo</h2>
+              <p className="text-sm text-neutral-500 mb-4">El vehículo está listo para entrega al asegurado.</p>
+              <button
+                type="button"
+                disabled={processingEntrega}
+                onClick={handleAutorizarEntrega}
+                className="px-4 py-2 bg-primary-800 text-white text-sm font-medium rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50"
+              >
+                {processingEntrega ? 'Procesando…' : 'Autorizar Entrega'}
+              </button>
             </section>
           )}
 

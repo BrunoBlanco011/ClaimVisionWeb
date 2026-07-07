@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { createPresupuesto, getExpedienteById } from '../../services'
+import { create as createPresupuesto } from '../../api/taller/cotizaciones/cotizaciones.routes'
+import { getById as getExpedienteById } from '../../api/taller/ordenes/ordenes.routes'
 import { useToast } from '../../contexts/Toast'
-import type { Part, VehicleData } from '../../types'
+import type { Part, VehicleData } from '../../api/taller/cotizaciones/cotizaciones.schemas'
 
 const IVA_RATE = 0.16
 let nextPartId = 1
@@ -23,6 +24,7 @@ export function ElaboracionPresupuestoPage() {
   const [parts, setParts] = useState<Part[]>([])
   const [hours, setHours] = useState(0)
   const [hourlyRate, setHourlyRate] = useState(0)
+  const [desglosePdfUrl, setDesglosePdfUrl] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [isLoadingExpediente, setIsLoadingExpediente] = useState(false)
 
@@ -63,17 +65,18 @@ export function ElaboracionPresupuestoPage() {
     setVehicle((prev) => ({ ...prev, [field]: e.target.value }))
   }
 
-  const canSubmit = vehicle.brand && vehicle.model && parts.some((p) => p.code && p.description && p.unitPrice > 0) && hours > 0 && hourlyRate > 0
+  const canSubmit = Boolean(id) && vehicle.brand && vehicle.model && parts.some((p) => p.code && p.description && p.unitPrice > 0) && hours > 0 && hourlyRate > 0 && desglosePdfUrl.trim().length > 0
 
   const handleSubmit = async () => {
-    if (!canSubmit) return
+    if (!canSubmit || !id) return
     setSubmitting(true)
     try {
-      await createPresupuesto({ vehicle, parts, hours, hourlyRate })
+      await createPresupuesto({ siniestroId: id, vehicle, parts, hours, hourlyRate, desglosePdfUrl: desglosePdfUrl.trim() })
       setVehicle({ brand: '', model: '', year: '', plate: '', expediente: '' })
       setParts([])
       setHours(0)
       setHourlyRate(0)
+      setDesglosePdfUrl('')
       addToast('success', 'Presupuesto enviado exitosamente')
       navigate('/taller/bandeja')
     } catch {
@@ -173,6 +176,14 @@ export function ElaboracionPresupuestoPage() {
               <InputField label="Horas estimadas" type="number" value={String(hours)} onChange={(e) => setHours(Math.max(0, Number(e.target.value)))} placeholder="0" />
               <InputField label="Costo por hora" type="number" prefix="$" value={String(hourlyRate)} onChange={(e) => setHourlyRate(Math.max(0, Number(e.target.value)))} placeholder="0.00" />
             </div>
+          </section>
+
+          <section className="bg-white rounded-xl border border-neutral-200 p-6">
+            <h2 className="text-lg font-semibold text-neutral-900 mb-4">Desglose en PDF</h2>
+            <p className="text-sm text-neutral-500 mb-3">
+              Sube el desglose de la cotización a tu almacenamiento (Supabase Storage u otro) y pega aquí la URL pública. El backend la requiere para registrar la cotización.
+            </p>
+            <InputField label="URL del PDF" value={desglosePdfUrl} onChange={(e) => setDesglosePdfUrl(e.target.value)} placeholder="https://…/desglose.pdf" />
           </section>
         </div>
 

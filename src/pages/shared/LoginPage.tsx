@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../../components/templates/AuthLayout'
 import { LoginForm } from '../../components/organisms/LoginForm'
 import { useAuth } from '../../contexts/useAuth'
-import { login } from '../../services/auth.service'
+import { login } from '../../api/auth/auth.routes'
 import type { LoginCredentials } from '../../components/organisms/LoginForm'
 
 const roleRedirect: Record<string, string> = {

@@ -4,12 +4,25 @@ import { CrudModal } from '../../components/organisms/CrudModal'
 import { AjustadorForm, type AjustadorFormData } from '../../components/molecules/AjustadorForm'
 import { ConfirmDialog } from '../../components/molecules/ConfirmDialog'
 import { SearchInput } from '../../components/molecules/SearchInput'
-import { getAjustadores, createAjustador, updateAjustador, removeAjustador } from '../../services'
+import { getAll as getAjustadores, create as createAjustador, update as updateAjustador, remove as removeAjustador } from '../../api/aseguradora/ajustadores/ajustadores.routes'
+import { getAll as getIncidentes } from '../../api/aseguradora/siniestros/siniestros.routes'
 import { useToast } from '../../contexts/Toast'
-import type { Ajustador } from '../../types'
+import type { Ajustador } from '../../api/aseguradora/ajustadores/ajustadores.schemas'
+
+// GET /aseguradora/crud/ajustadores no devuelve un conteo de siniestros asignados;
+// se deriva cruzando con GET /aseguradora/siniestros (ajustador_id).
+async function withIncidentesAsignados(ajustadores: Ajustador[]): Promise<Ajustador[]> {
+  const incidentes = await getIncidentes()
+  const counts = new Map<string, number>()
+  for (const inc of incidentes) {
+    if (!inc.ajustadorId) continue
+    counts.set(inc.ajustadorId, (counts.get(inc.ajustadorId) ?? 0) + 1)
+  }
+  return ajustadores.map((a) => ({ ...a, incidentesAsignados: counts.get(a.id) ?? 0 }))
+}
 
 const PAGE_SIZE = 5
-const emptyForm: AjustadorFormData = { nombre: '', email: '', telefono: '', especialidad: '' }
+const emptyForm: AjustadorFormData = { nombre: '', email: '', telefono: '', especialidad: '', password_temporal: '' }
 
 const statusOptions = [
   { value: '', label: 'Todos los estados' },
@@ -36,15 +49,15 @@ export function GestionAjustadoresPage() {
   const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
-    getAjustadores().then((result) => {
-      setData(result)
+    getAjustadores().then(async (result) => {
+      setData(await withIncidentesAsignados(result))
       setIsLoading(false)
     })
   }, [])
 
   const loadData = async () => {
     const result = await getAjustadores()
-    setData(result)
+    setData(await withIncidentesAsignados(result))
   }
 
   const openNew = () => {
@@ -55,7 +68,7 @@ export function GestionAjustadoresPage() {
 
   const openEdit = (item: Ajustador) => {
     setEditingId(item.id)
-    setFormData({ nombre: item.nombre, email: item.email, telefono: item.telefono, especialidad: item.especialidad })
+    setFormData({ nombre: item.nombre, email: item.email, telefono: item.telefono, especialidad: item.especialidad, password_temporal: '' })
     setModalOpen(true)
   }
 
@@ -206,7 +219,7 @@ export function GestionAjustadoresPage() {
         submitLabel={editingId ? 'Guardar Cambios' : 'Crear Ajustador'}
         isSubmitting={isSubmitting}
       >
-        <AjustadorForm data={formData} onChange={setFormData} />
+        <AjustadorForm data={formData} onChange={setFormData} isEditing={editingId !== null} />
       </CrudModal>
     </div>
   )

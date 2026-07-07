@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ActionBadge, type ActionVariant } from '../../components/atoms/ActionBadge'
 import { RoleBadge, type RoleVariant } from '../../components/atoms/RoleBadge'
-import { getAdminAuditoria } from '../../services'
+import { getAll as getAdminAuditoria } from '../../api/admin/auditoria/auditoria.routes'
 
 interface EventoRow {
   id: string

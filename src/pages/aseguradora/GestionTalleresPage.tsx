@@ -4,12 +4,12 @@ import { CrudModal } from '../../components/organisms/CrudModal'
 import { TallerForm, type TallerFormData } from '../../components/molecules/TallerForm'
 import { ConfirmDialog } from '../../components/molecules/ConfirmDialog'
 import { SearchInput } from '../../components/molecules/SearchInput'
-import { getTalleres, createTaller, updateTaller, removeTaller } from '../../services'
+import { getAll as getTalleres, create as createTaller, update as updateTaller, remove as removeTaller } from '../../api/aseguradora/talleres/talleres.routes'
 import { useToast } from '../../contexts/Toast'
-import type { Taller } from '../../types'
+import type { Taller } from '../../api/aseguradora/talleres/talleres.schemas'
 
 const PAGE_SIZE = 5
-const emptyForm: TallerFormData = { nombre: '', direccion: '', contacto: '', telefono: '', capacidad: 0 }
+const emptyForm: TallerFormData = { nombre: '', rfc: '', direccion: '', telefono: '' }
 
 const statusOptions = [
   { value: '', label: 'Todos los estados' },
@@ -55,7 +55,7 @@ export function GestionTalleresPage() {
 
   const openEdit = (item: Taller) => {
     setEditingId(item.id)
-    setFormData({ nombre: item.nombre, direccion: item.direccion, contacto: item.contacto, telefono: item.telefono, capacidad: item.capacidad })
+    setFormData({ nombre: item.nombre, rfc: item.rfc, direccion: item.direccion, telefono: item.telefono })
     setModalOpen(true)
   }
 
@@ -103,7 +103,7 @@ export function GestionTalleresPage() {
     return data.filter((item) => {
       if (search) {
         const q = search.toLowerCase()
-        if (!item.nombre.toLowerCase().includes(q) && !item.contacto.toLowerCase().includes(q) && !item.direccion.toLowerCase().includes(q)) return false
+        if (!item.nombre.toLowerCase().includes(q) && !item.rfc.toLowerCase().includes(q) && !item.direccion.toLowerCase().includes(q)) return false
       }
       if (statusFilter && item.estado !== statusFilter) return false
       return true
@@ -116,10 +116,9 @@ export function GestionTalleresPage() {
 
   const columns: Column<Taller>[] = [
     { key: 'nombre', header: 'Nombre', sortable: true },
+    { key: 'rfc', header: 'RFC', sortable: true },
     { key: 'direccion', header: 'Dirección' },
-    { key: 'contacto', header: 'Contacto', sortable: true },
     { key: 'telefono', header: 'Teléfono' },
-    { key: 'capacidad', header: 'Capacidad', sortable: true },
     {
       key: 'estado',
       header: 'Estado',
@@ -161,7 +160,7 @@ export function GestionTalleresPage() {
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="w-full sm:w-72">
-          <SearchInput value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} placeholder="Buscar por nombre, contacto o dirección…" />
+          <SearchInput value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} placeholder="Buscar por nombre, RFC o dirección…" />
         </div>
         <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-600">
           {statusOptions.map((opt) => (

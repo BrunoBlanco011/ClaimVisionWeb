@@ -2,8 +2,8 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DataTable, StatusBadge, type Column } from '../../components/organisms/DataTable'
 import { SearchInput } from '../../components/molecules/SearchInput'
-import { getIncidentes } from '../../services'
-import type { Incidente } from '../../types'
+import { getAll as getIncidentes } from '../../api/aseguradora/siniestros/siniestros.routes'
+import type { Incidente } from '../../api/aseguradora/siniestros/siniestros.schemas'
 
 const PAGE_SIZE = 5
 

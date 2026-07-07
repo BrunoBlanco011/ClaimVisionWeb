@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
-import { getIncidentes, getPeritajesPendientesCount } from '../../services'
-import type { Incidente } from '../../types'
+import { getAll as getIncidentes } from '../../api/aseguradora/siniestros/siniestros.routes'
+import type { Incidente } from '../../api/aseguradora/siniestros/siniestros.schemas'
 
 const STATUS_LABELS: Record<string, string> = {
   pendiente: 'Pendiente',
@@ -22,16 +22,11 @@ const PLAN_DATA = {
 
 export function TableroGeneralPage() {
   const [incidentes, setIncidentes] = useState<Incidente[]>([])
-  const [peritajesPendientes, setPeritajesPendientes] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([
-      getIncidentes(),
-      getPeritajesPendientesCount(),
-    ]).then(([inc, pendCount]) => {
+    getIncidentes().then((inc) => {
       setIncidentes(inc)
-      setPeritajesPendientes(pendCount)
       setIsLoading(false)
     })
   }, [])
@@ -39,6 +34,9 @@ export function TableroGeneralPage() {
   const activos = incidentes.filter((i) => i.estado === 'en_progreso' || i.estado === 'pendiente' || i.estado === 'aprobado').length
   const pendientes = incidentes.filter((i) => i.estado === 'pendiente').length
   const completados = incidentes.filter((i) => i.estado === 'completado').length
+  // Peritaje pendiente = siniestro ya asignado a un ajustador pero aún no validado
+  // (GET /aseguradora/siniestros no expone el peritaje anidado; se deriva del estatus real).
+  const peritajesPendientes = incidentes.filter((i) => i.estatusRaw === 'Asignado_A_Ajustador').length
 
   const barData = useMemo(() => {
     const counts: Record<string, number> = {}

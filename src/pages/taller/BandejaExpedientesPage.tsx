@@ -2,8 +2,9 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DataTable, StatusBadge, type Column } from '../../components/organisms/DataTable'
 import { SearchInput } from '../../components/molecules/SearchInput'
-import { getExpedientes } from '../../services'
-import type { Expediente, StatusVariant } from '../../types'
+import { getAll as getExpedientes } from '../../api/taller/ordenes/ordenes.routes'
+import type { Expediente } from '../../api/taller/ordenes/ordenes.schemas'
+import type { StatusVariant } from '../../api/shared/status'
 
 const PAGE_SIZE = 5
 

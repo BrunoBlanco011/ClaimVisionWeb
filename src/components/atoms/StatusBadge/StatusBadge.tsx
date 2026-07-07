@@ -1,4 +1,4 @@
-import type { StatusVariant } from '../../../types'
+import type { StatusVariant } from '../../../api/shared/status'
 export type { StatusVariant }
 
 export type StatusSize = 'sm' | 'md'

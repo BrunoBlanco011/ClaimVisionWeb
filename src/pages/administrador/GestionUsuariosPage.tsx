@@ -4,7 +4,7 @@ import { RoleBadge, type RoleVariant } from '../../components/atoms/RoleBadge'
 import { CrudModal } from '../../components/organisms/CrudModal'
 import { ConfirmDialog } from '../../components/molecules/ConfirmDialog'
 import { UsuarioForm, type UsuarioFormData } from '../../components/molecules/UsuarioForm'
-import { adminBloqueoArco } from '../../services'
+import { bloqueoArco as adminBloqueoArco } from '../../api/admin/usuarios/usuarios.routes'
 
 type EstatusUsuario = 'Activo' | 'Inactivo'
 
