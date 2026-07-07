@@ -71,7 +71,7 @@ export function ElaboracionPresupuestoPage() {
     if (!canSubmit || !id) return
     setSubmitting(true)
     try {
-      await createPresupuesto({ siniestroId: id, vehicle, parts, hours, hourlyRate, desglosePdfUrl: desglosePdfUrl.trim() })
+      await createPresupuesto({ vehicle, parts, hours, hourlyRate, expedienteId: id })
       setVehicle({ brand: '', model: '', year: '', plate: '', expediente: '' })
       setParts([])
       setHours(0)
