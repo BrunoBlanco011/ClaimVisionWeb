@@ -33,3 +33,10 @@ export interface TallerUpdateDTO {
   direccion_tecnica?: string
   telefono_contacto?: string
 }
+
+export interface OperadorTallerRequestDTO {
+  nombre: string
+  email: string
+  password: string
+  puesto?: string
+}

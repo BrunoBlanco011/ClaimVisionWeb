@@ -2,6 +2,7 @@ import type { StatusVariant } from '../../shared/status'
 
 export interface Ajustador {
   id: string
+  usuarioId: string
   nombre: string
   email: string
   telefono: string
@@ -16,6 +17,9 @@ export interface AjustadorResponseDTO {
   cedula_profesional: string
   geolocalizacion_actual: [number, number] | null
   activo_para_servicio: boolean
+  nombre: string | null
+  email: string | null
+  telefono: string | null
   version: number
   created_at: string
   updated_at: string

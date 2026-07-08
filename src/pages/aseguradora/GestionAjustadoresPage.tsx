@@ -6,6 +6,7 @@ import { ConfirmDialog } from '../../components/molecules/ConfirmDialog'
 import { SearchInput } from '../../components/molecules/SearchInput'
 import { getAll as getAjustadores, create as createAjustador, update as updateAjustador, remove as removeAjustador } from '../../api/aseguradora/ajustadores/ajustadores.routes'
 import { getAll as getIncidentes } from '../../api/aseguradora/siniestros/siniestros.routes'
+import { bloqueoArco, desbloqueoArco } from '../../api/aseguradora/usuarios/usuarios.routes'
 import { useToast } from '../../contexts/Toast'
 import type { Ajustador } from '../../api/aseguradora/ajustadores/ajustadores.schemas'
 
@@ -47,6 +48,8 @@ export function GestionAjustadoresPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [arcoTarget, setArcoTarget] = useState<{ usuarioId: string; accion: 'bloqueo' | 'desbloqueo' } | null>(null)
+  const [isProcessingArco, setIsProcessingArco] = useState(false)
 
   useEffect(() => {
     getAjustadores().then(async (result) => {
@@ -112,6 +115,25 @@ export function GestionAjustadoresPage() {
     }
   }
 
+  const handleArcoConfirm = async () => {
+    if (!arcoTarget) return
+    setIsProcessingArco(true)
+    try {
+      if (arcoTarget.accion === 'bloqueo') {
+        await bloqueoArco(arcoTarget.usuarioId)
+        addToast('success', 'Bloqueo ARCO aplicado correctamente')
+      } else {
+        await desbloqueoArco(arcoTarget.usuarioId)
+        addToast('success', 'Desbloqueo ARCO aplicado correctamente')
+      }
+      setArcoTarget(null)
+    } catch {
+      addToast('error', 'Error al procesar la solicitud ARCO')
+    } finally {
+      setIsProcessingArco(false)
+    }
+  }
+
   const filtered = useMemo(() => {
     return data.filter((item) => {
       if (search) {
@@ -145,6 +167,16 @@ export function GestionAjustadoresPage() {
       className: 'w-20 text-right',
       render: (item) => (
         <div className="flex items-center justify-end gap-1">
+          <button type="button" onClick={() => setArcoTarget({ usuarioId: item.usuarioId, accion: 'bloqueo' })} className="p-1.5 text-neutral-400 hover:text-warning-600 transition-colors" aria-label="Bloquear ARCO">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </button>
+          <button type="button" onClick={() => setArcoTarget({ usuarioId: item.usuarioId, accion: 'desbloqueo' })} className="p-1.5 text-neutral-400 hover:text-success-600 transition-colors" aria-label="Desbloquear ARCO">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm2-10V7a4 4 0 118 0" />
+            </svg>
+          </button>
           <button type="button" onClick={() => openEdit(item)} className="p-1.5 text-neutral-400 hover:text-primary-700 transition-colors" aria-label="Editar">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -209,6 +241,21 @@ export function GestionAjustadoresPage() {
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteId(null)}
         isConfirming={isDeleting}
+      />
+
+      <ConfirmDialog
+        open={arcoTarget !== null}
+        title={arcoTarget?.accion === 'bloqueo' ? 'Bloquear ARCO' : 'Desbloquear ARCO'}
+        message={
+          arcoTarget?.accion === 'bloqueo'
+            ? 'El ajustador no podrá iniciar sesión hasta que se desbloquee. ¿Deseas continuar?'
+            : 'Se restablecerá el acceso del ajustador al sistema. ¿Deseas continuar?'
+        }
+        confirmLabel={arcoTarget?.accion === 'bloqueo' ? 'Bloquear' : 'Desbloquear'}
+        variant={arcoTarget?.accion === 'bloqueo' ? 'danger' : 'default'}
+        onConfirm={handleArcoConfirm}
+        onCancel={() => setArcoTarget(null)}
+        isConfirming={isProcessingArco}
       />
 
       <CrudModal

@@ -1,5 +1,5 @@
 import { api } from '../../client'
-import type { Taller, TallerResponseDTO, TallerCreateDTO, TallerUpdateDTO } from './talleres.schemas'
+import type { Taller, TallerResponseDTO, TallerCreateDTO, TallerUpdateDTO, OperadorTallerRequestDTO } from './talleres.schemas'
 
 const MOCK = false
 
@@ -69,4 +69,12 @@ export async function remove(id: string): Promise<void> {
     return
   }
   await api.delete(`/aseguradora/crud/talleres/${id}`)
+}
+
+export async function createOperador(tallerId: string, data: OperadorTallerRequestDTO): Promise<void> {
+  if (MOCK) {
+    await delay(300)
+    return
+  }
+  await api.post<unknown>(`/aseguradora/crud/talleres/${tallerId}/operadores`, data)
 }

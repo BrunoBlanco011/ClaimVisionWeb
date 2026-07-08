@@ -27,5 +27,3 @@ export type { UsuarioFormData, UsuarioFormProps } from './UsuarioForm'
 export { AseguradoraForm } from './AseguradoraForm'
 export type { AseguradoraFormData, AseguradoraFormProps } from './AseguradoraForm'
 
-export { TallerAdminForm } from './TallerAdminForm'
-export type { TallerAdminFormData, TallerAdminFormProps } from './TallerAdminForm'

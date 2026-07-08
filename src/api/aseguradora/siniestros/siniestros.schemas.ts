@@ -72,6 +72,9 @@ export interface SiniestroDetalleAseguradoraDTO extends SiniestroResponseDTO {
   imagenes: ImagenSiniestroResponseDTO[]
   peritaje: PeritajeResponseDTO | null
   cotizacion: CotizacionV1DTO | null
+  cliente_nombre: string | null
+  ajustador_nombre: string | null
+  taller_nombre: string | null
 }
 
 export interface AsignarAjustadorDTO {

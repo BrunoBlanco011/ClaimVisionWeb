@@ -21,6 +21,7 @@ const navItems: Record<UserRole, NavItem[]> = {
     { label: 'Detalle y Asignación', path: '/aseguradora/incidentes/detalle', icon: <AssignIcon /> },
     { label: 'Gestión de Ajustadores', path: '/aseguradora/ajustadores', icon: <AdjusterIcon /> },
     { label: 'Gestión de Talleres', path: '/aseguradora/talleres', icon: <WorkshopIcon /> },
+    { label: 'Gestión de Clientes', path: '/aseguradora/clientes', icon: <UsersIcon /> },
     { label: 'Configuración', path: '/aseguradora/configuracion', icon: <CogIcon /> },
   ],
   taller: [

@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { getAll as getIncidentes } from '../../api/aseguradora/siniestros/siniestros.routes'
+import { getPerfil } from '../../api/aseguradora/perfil/perfil.routes'
 import type { Incidente } from '../../api/aseguradora/siniestros/siniestros.schemas'
+import type { PerfilAseguradora } from '../../api/aseguradora/perfil/perfil.schemas'
 
 const STATUS_LABELS: Record<string, string> = {
   pendiente: 'Pendiente',
@@ -14,19 +16,15 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_COLORS = ['#f59e0b', '#3b82f6', '#22c55e', '#ef4444', '#8b5cf6', '#6b7280']
 
-const PLAN_DATA = {
-  consumo: { usado: 45, total: 100, label: 'Consultas mensuales' },
-  plan: { nombre: 'Empresarial', costo: '$2,500.00', proximoPago: '31/07/2026' },
-  estatus: { texto: 'Activo', desde: '01/01/2026', vence: '31/12/2026' },
-}
-
 export function TableroGeneralPage() {
   const [incidentes, setIncidentes] = useState<Incidente[]>([])
+  const [perfil, setPerfil] = useState<PerfilAseguradora | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    getIncidentes().then((inc) => {
+    Promise.all([getIncidentes(), getPerfil()]).then(([inc, p]) => {
       setIncidentes(inc)
+      setPerfil(p)
       setIsLoading(false)
     })
   }, [])
@@ -48,9 +46,12 @@ export function TableroGeneralPage() {
   }, [incidentes])
 
   const ultimos = [...incidentes].slice(0, 4)
-  const pct = Math.round((PLAN_DATA.consumo.usado / PLAN_DATA.consumo.total) * 100)
+  const ilimitado = (perfil?.limitePeritajesMes ?? 0) < 0
+  const pct = perfil && !ilimitado && perfil.limitePeritajesMes > 0
+    ? Math.round((perfil.peritajesConsumidosMes / perfil.limitePeritajesMes) * 100)
+    : 0
 
-  if (isLoading) {
+  if (isLoading || !perfil) {
     return (
       <div className="flex items-center justify-center py-16 text-neutral-400">
         <p className="text-lg">Cargando tablero…</p>
@@ -101,29 +102,28 @@ export function TableroGeneralPage() {
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-neutral-600">Consumo mensual</span>
-                <span className="text-neutral-900 font-medium">{PLAN_DATA.consumo.usado} / {PLAN_DATA.consumo.total}</span>
+                <span className="text-neutral-900 font-medium">
+                  {ilimitado ? `${perfil.peritajesConsumidosMes} / Ilimitado` : `${perfil.peritajesConsumidosMes} / ${perfil.limitePeritajesMes}`}
+                </span>
               </div>
               <div className="w-full h-2.5 bg-neutral-100 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary-700 rounded-full transition-all duration-500"
-                  style={{ width: `${pct}%` }}
+                  style={{ width: `${ilimitado ? 0 : pct}%` }}
                 />
               </div>
-              <span className="text-xs text-neutral-400">{PLAN_DATA.consumo.label}</span>
+              <span className="text-xs text-neutral-400">Peritajes del mes</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="bg-neutral-50 rounded-lg border border-neutral-200 p-4">
                 <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Plan</span>
-                <p className="text-base font-semibold text-neutral-900 mt-1">{PLAN_DATA.plan.nombre}</p>
-                <p className="text-sm text-neutral-600">{PLAN_DATA.plan.costo} / mes</p>
-                <p className="text-xs text-neutral-400 mt-1">Próximo pago: {PLAN_DATA.plan.proximoPago}</p>
+                <p className="text-base font-semibold text-neutral-900 mt-1">{perfil.plan}</p>
+                <p className="text-xs text-neutral-400 mt-1">Aseguradora desde: {new Date(perfil.desde).toLocaleDateString('es-MX')}</p>
               </div>
               <div className="bg-neutral-50 rounded-lg border border-neutral-200 p-4">
                 <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Estatus Comercial</span>
-                <p className="text-base font-semibold text-success-600 mt-1">{PLAN_DATA.estatus.texto}</p>
-                <p className="text-sm text-neutral-600">Desde: {PLAN_DATA.estatus.desde}</p>
-                <p className="text-xs text-neutral-400 mt-1">Vence: {PLAN_DATA.estatus.vence}</p>
+                <p className={`text-base font-semibold mt-1 ${perfil.estatusComercial === 'Activo' ? 'text-success-600' : 'text-neutral-500'}`}>{perfil.estatusComercial}</p>
               </div>
             </div>
           </div>

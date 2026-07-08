@@ -14,6 +14,7 @@ import { BandejaIncidentesPage } from './pages/aseguradora/BandejaIncidentesPage
 import { DetalleIncidentePage } from './pages/aseguradora/DetalleIncidentePage'
 import { GestionAjustadoresPage } from './pages/aseguradora/GestionAjustadoresPage'
 import { GestionTalleresPage } from './pages/aseguradora/GestionTalleresPage'
+import { GestionClientesPage } from './pages/aseguradora/GestionClientesPage'
 import { ConfiguracionPage as AseguradoraConfig } from './pages/aseguradora/ConfiguracionPage'
 import { PanelGlobalPage } from './pages/administrador/PanelGlobalPage'
 import { GestionUsuariosPage } from './pages/administrador/GestionUsuariosPage'
@@ -51,6 +52,7 @@ export const router = createBrowserRouter([
           { path: 'incidentes/detalle', element: <DetalleIncidentePage /> },
           { path: 'ajustadores', element: <GestionAjustadoresPage /> },
           { path: 'talleres', element: <GestionTalleresPage /> },
+          { path: 'clientes', element: <GestionClientesPage /> },
           { path: 'configuracion', element: <AseguradoraConfig /> },
         ],
       },

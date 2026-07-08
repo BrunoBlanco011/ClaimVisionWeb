@@ -12,6 +12,7 @@ export interface UsuarioFormData {
 export interface UsuarioFormProps {
   data: UsuarioFormData
   onChange: (data: UsuarioFormData) => void
+  aseguradoras?: { id: string; nombre: string }[]
 }
 
 const ROLES: string[] = [
@@ -31,7 +32,7 @@ function generatePassword(): string {
   return pass
 }
 
-export function UsuarioForm({ data, onChange }: UsuarioFormProps) {
+export function UsuarioForm({ data, onChange, aseguradoras = [] }: UsuarioFormProps) {
   const set = (field: keyof UsuarioFormData, value: string | boolean) => {
     onChange({ ...data, [field]: value })
   }
@@ -96,9 +97,9 @@ export function UsuarioForm({ data, onChange }: UsuarioFormProps) {
             className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg bg-white text-neutral-700"
           >
             <option value="">Seleccionar aseguradora...</option>
-            <option>Seguros ABC</option>
-            <option>Aseguradora XYZ</option>
-            <option>Seguros del Valle</option>
+            {aseguradoras.map((a) => (
+              <option key={a.id} value={a.id}>{a.nombre}</option>
+            ))}
           </select>
           <p className="text-xs text-neutral-400 mt-1">Obligatorio para Operador Aseguradora y Ajustador</p>
         </div>

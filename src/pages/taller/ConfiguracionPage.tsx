@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Input } from '../../components/atoms/Input'
 import { Label } from '../../components/atoms/Label'
-import { useAuth } from '../../contexts/useAuth'
 import { useToast } from '../../contexts/Toast'
+import { getPerfil, updatePerfil } from '../../api/taller/perfil/perfil.routes'
+import type { TallerPerfil } from '../../api/taller/perfil/perfil.schemas'
 
 interface TallerConfig {
   workshopName: string
@@ -38,23 +39,33 @@ const serviceOptions = [
   'Aire acondicionado',
 ]
 
-function loadConfig(): TallerConfig {
+function loadConfig(perfil: TallerPerfil): TallerConfig {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? { ...defaultConfig, ...JSON.parse(raw) } : defaultConfig
+    if (raw) return { ...defaultConfig, ...JSON.parse(raw) }
   } catch {
-    return defaultConfig
+    // ignora config local corrupta y usa los valores del backend
+  }
+  return {
+    ...defaultConfig,
+    workshopName: perfil.nombreComercial,
+    address: perfil.direccion,
+    contact: perfil.operadorNombre,
+    phone: perfil.telefonoContacto,
   }
 }
 
 export function ConfiguracionPage() {
-  const { user } = useAuth()
   const { addToast } = useToast()
+  const [perfil, setPerfil] = useState<TallerPerfil | null>(null)
   const [config, setConfig] = useState<TallerConfig>(defaultConfig)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    setConfig(loadConfig())
+    getPerfil().then((p) => {
+      setPerfil(p)
+      setConfig(loadConfig(p))
+    })
   }, [])
 
   const set = (field: keyof TallerConfig) => (
@@ -73,9 +84,17 @@ export function ConfiguracionPage() {
     }))
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaving(true)
     try {
+      const nuevoPerfil = await updatePerfil({
+        nombreComercial: config.workshopName,
+        direccion: config.address,
+        telefonoContacto: config.phone,
+        operadorNombre: config.contact,
+        operadorTelefono: config.phone,
+      })
+      setPerfil(nuevoPerfil)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
       addToast('success', 'Configuración guardada correctamente')
     } catch {
@@ -83,6 +102,14 @@ export function ConfiguracionPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  if (!perfil) {
+    return (
+      <div className="flex items-center justify-center py-16 text-neutral-400">
+        <p className="text-lg">Cargando configuración…</p>
+      </div>
+    )
   }
 
   return (
@@ -97,11 +124,11 @@ export function ConfiguracionPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
             <Label>Nombre</Label>
-            <Input value={user?.name ?? ''} disabled />
+            <Input value={perfil?.operadorNombre ?? ''} disabled />
           </div>
           <div className="flex flex-col gap-1">
             <Label>Correo electrónico</Label>
-            <Input value={user?.email ?? ''} disabled />
+            <Input value={perfil?.operadorEmail ?? ''} disabled />
           </div>
         </div>
         <p className="text-xs text-neutral-400 mt-3">Los datos del perfil se gestionan desde la cuenta de acceso.</p>
