@@ -15,6 +15,7 @@ import { DetalleIncidentePage } from './pages/aseguradora/DetalleIncidentePage'
 import { GestionAjustadoresPage } from './pages/aseguradora/GestionAjustadoresPage'
 import { GestionTalleresPage } from './pages/aseguradora/GestionTalleresPage'
 import { GestionClientesPage } from './pages/aseguradora/GestionClientesPage'
+import { GestionVehiculosPage } from './pages/aseguradora/GestionVehiculosPage'
 import { ConfiguracionPage as AseguradoraConfig } from './pages/aseguradora/ConfiguracionPage'
 import { PanelGlobalPage } from './pages/administrador/PanelGlobalPage'
 import { GestionUsuariosPage } from './pages/administrador/GestionUsuariosPage'
@@ -53,6 +54,7 @@ export const router = createBrowserRouter([
           { path: 'ajustadores', element: <GestionAjustadoresPage /> },
           { path: 'talleres', element: <GestionTalleresPage /> },
           { path: 'clientes', element: <GestionClientesPage /> },
+          { path: 'vehiculos', element: <GestionVehiculosPage /> },
           { path: 'configuracion', element: <AseguradoraConfig /> },
         ],
       },

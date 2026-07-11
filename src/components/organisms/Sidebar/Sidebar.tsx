@@ -22,6 +22,7 @@ const navItems: Record<UserRole, NavItem[]> = {
     { label: 'Gestión de Ajustadores', path: '/aseguradora/ajustadores', icon: <AdjusterIcon /> },
     { label: 'Gestión de Talleres', path: '/aseguradora/talleres', icon: <WorkshopIcon /> },
     { label: 'Gestión de Clientes', path: '/aseguradora/clientes', icon: <UsersIcon /> },
+    { label: 'Vehículos', path: '/aseguradora/vehiculos', icon: <CarIcon /> },
     { label: 'Configuración', path: '/aseguradora/configuracion', icon: <CogIcon /> },
   ],
   taller: [
@@ -91,6 +92,16 @@ function WorkshopIcon() {
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    </NavIcon>
+  )
+}
+
+function CarIcon() {
+  return (
+    <NavIcon>
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 11l1.5-4.5A2 2 0 018.4 5h7.2a2 2 0 011.9 1.5L19 11m-14 0h14m-14 0a2 2 0 00-2 2v4a1 1 0 001 1h1m14-7a2 2 0 012 2v4a1 1 0 01-1 1h-1m-14 0a2 2 0 002 2h.5a2 2 0 002-2m9.5 0a2 2 0 002 2h.5a2 2 0 002-2m-14 0h14" />
       </svg>
     </NavIcon>
   )
