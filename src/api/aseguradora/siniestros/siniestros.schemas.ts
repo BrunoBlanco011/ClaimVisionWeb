@@ -9,6 +9,7 @@ export interface SiniestroResponseDTO {
   cliente_id: string
   ajustador_id: string | null
   taller_id: string | null
+  vehiculo_id: string | null
   estatus: string
   vehiculo_marca: string
   vehiculo_modelo: string
@@ -25,6 +26,7 @@ export interface SiniestroResponseDTO {
 }
 
 export interface SiniestroUpdateDTO {
+  vehiculo_id?: string
   vehiculo_marca?: string
   vehiculo_modelo?: string
   vehiculo_anio?: number
@@ -72,6 +74,7 @@ export interface SiniestroDetalleAseguradoraDTO extends SiniestroResponseDTO {
   imagenes: ImagenSiniestroResponseDTO[]
   peritaje: PeritajeResponseDTO | null
   cotizacion: CotizacionV1DTO | null
+  peritaje_ia: Record<string, unknown> | null
   cliente_nombre: string | null
   ajustador_nombre: string | null
   taller_nombre: string | null

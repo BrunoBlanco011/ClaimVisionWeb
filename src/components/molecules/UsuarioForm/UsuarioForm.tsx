@@ -13,15 +13,21 @@ export interface UsuarioFormProps {
   data: UsuarioFormData
   onChange: (data: UsuarioFormData) => void
   aseguradoras?: { id: string; nombre: string }[]
+  isEditing?: boolean
 }
 
-const ROLES: string[] = [
+const ALL_ROLES: string[] = [
   'Administrador_Global',
   'Operador_Aseguradora',
   'Ajustador',
   'Operador_Taller',
   'Cliente',
 ]
+
+// Ajustador, Operador_Taller y Cliente requieren un perfil vinculado (aseguradora/taller/póliza)
+// que solo las rutas CRUD de la propia aseguradora crean; /admin/usuarios únicamente crea el
+// usuario base y los deja sin perfil, causando 403 al iniciar sesión.
+const CREATABLE_ROLES: string[] = ['Administrador_Global', 'Operador_Aseguradora']
 
 function generatePassword(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
@@ -32,12 +38,13 @@ function generatePassword(): string {
   return pass
 }
 
-export function UsuarioForm({ data, onChange, aseguradoras = [] }: UsuarioFormProps) {
+export function UsuarioForm({ data, onChange, aseguradoras = [], isEditing = false }: UsuarioFormProps) {
   const set = (field: keyof UsuarioFormData, value: string | boolean) => {
     onChange({ ...data, [field]: value })
   }
 
   const needsAseguradora = data.rol === 'Operador_Aseguradora' || data.rol === 'Ajustador'
+  const roleOptions = isEditing ? ALL_ROLES : CREATABLE_ROLES
 
   return (
     <div className="space-y-4">
@@ -84,8 +91,13 @@ export function UsuarioForm({ data, onChange, aseguradoras = [] }: UsuarioFormPr
           className="w-full px-3 py-2 text-sm border border-neutral-200 rounded-lg bg-white text-neutral-700"
         >
           <option value="">Seleccionar rol...</option>
-          {ROLES.map((r) => <option key={r}>{r}</option>)}
+          {roleOptions.map((r) => <option key={r}>{r}</option>)}
         </select>
+        {!isEditing && (
+          <p className="text-xs text-neutral-400 mt-1">
+            Ajustador, Operador de Taller y Cliente se crean desde el panel de la aseguradora correspondiente (Gestión de Ajustadores / Gestión de Talleres / Gestión de Clientes), ya que requieren vincularse a un perfil específico.
+          </p>
+        )}
       </div>
 
       {needsAseguradora && (

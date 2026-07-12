@@ -5,7 +5,7 @@ import { CrudModal } from '../../components/organisms/CrudModal'
 import { ConfirmDialog } from '../../components/molecules/ConfirmDialog'
 import { UsuarioForm, type UsuarioFormData } from '../../components/molecules/UsuarioForm'
 import { getAll as getUsuarios, create as createUsuario, update as updateUsuario, remove as removeUsuario, bloqueoArco } from '../../api/admin/usuarios/usuarios.routes'
-import { getAll as getAseguradoras } from '../../api/admin/aseguradoras/aseguradoras.routes'
+import { getAll as getAseguradoras, crearOperador as crearOperadorAseguradora } from '../../api/admin/aseguradoras/aseguradoras.routes'
 import { useToast } from '../../contexts/Toast'
 import type { Usuario } from '../../api/admin/usuarios/usuarios.schemas'
 
@@ -89,6 +89,13 @@ export function GestionUsuariosPage() {
           password: formData.contrasenaTemporal || undefined,
         })
         addToast('success', 'Usuario actualizado correctamente')
+      } else if (formData.rol === 'Operador_Aseguradora') {
+        await crearOperadorAseguradora(formData.aseguradora, {
+          nombre: formData.nombreCompleto,
+          email: formData.email,
+          password: formData.contrasenaTemporal,
+        })
+        addToast('success', 'Operador de aseguradora creado correctamente')
       } else {
         await createUsuario({
           nombre: formData.nombreCompleto,
@@ -281,7 +288,7 @@ export function GestionUsuariosPage() {
         submitLabel={editingId ? 'Guardar Cambios' : 'Crear usuario'}
         isSubmitting={isSubmitting}
       >
-        <UsuarioForm data={formData} onChange={setFormData} aseguradoras={aseguradoras} />
+        <UsuarioForm data={formData} onChange={setFormData} aseguradoras={aseguradoras} isEditing={editingId !== null} />
       </CrudModal>
     </div>
   )
