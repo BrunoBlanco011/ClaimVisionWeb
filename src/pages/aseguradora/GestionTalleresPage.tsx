@@ -7,6 +7,8 @@ import { ConfirmDialog } from '../../components/molecules/ConfirmDialog'
 import { SearchInput } from '../../components/molecules/SearchInput'
 import { getAll as getTalleres, create as createTaller, update as updateTaller, remove as removeTaller, createOperador } from '../../api/aseguradora/talleres/talleres.routes'
 import { useToast } from '../../contexts/Toast'
+import { getErrorMessage } from '../../api/errors'
+import { useLiveRefresh } from '../../contexts/EventStream'
 import type { Taller } from '../../api/aseguradora/talleres/talleres.schemas'
 
 const PAGE_SIZE = 5
@@ -41,17 +43,16 @@ export function GestionTalleresPage() {
   const [operadorFormData, setOperadorFormData] = useState<OperadorTallerFormData>(emptyOperadorForm)
   const [isSubmittingOperador, setIsSubmittingOperador] = useState(false)
 
-  useEffect(() => {
-    getTalleres().then((result) => {
-      setData(result)
-      setIsLoading(false)
-    })
-  }, [])
-
   const loadData = async () => {
     const result = await getTalleres()
     setData(result)
   }
+
+  useEffect(() => {
+    loadData().then(() => setIsLoading(false))
+  }, [])
+
+  useLiveRefresh(['taller_created', 'taller_updated'], loadData)
 
   const openNew = () => {
     setEditingId(null)
@@ -77,8 +78,8 @@ export function GestionTalleresPage() {
       await loadData()
       addToast('success', 'Taller eliminado correctamente')
       setDeleteId(null)
-    } catch {
-      addToast('error', 'Error al eliminar el taller')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al eliminar el taller'))
     } finally {
       setIsDeleting(false)
     }
@@ -98,8 +99,8 @@ export function GestionTalleresPage() {
       setModalOpen(false)
       setFormData(emptyForm)
       setEditingId(null)
-    } catch {
-      addToast('error', 'Error al guardar el taller')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al guardar el taller'))
     } finally {
       setIsSubmitting(false)
     }
@@ -125,8 +126,8 @@ export function GestionTalleresPage() {
       setOperadorModalOpen(false)
       setOperadorFormData(emptyOperadorForm)
       setOperadorTallerId(null)
-    } catch {
-      addToast('error', 'Error al crear el operador')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al crear el operador'))
     } finally {
       setIsSubmittingOperador(false)
     }
@@ -191,7 +192,7 @@ export function GestionTalleresPage() {
           <h1 className="text-2xl font-bold text-neutral-900">Gestión de Talleres</h1>
           <p className="text-sm text-neutral-500 mt-1">Administra los talleres registrados en el sistema.</p>
         </div>
-        <button type="button" onClick={openNew} className="px-4 py-2.5 bg-primary-800 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
+        <button type="button" onClick={openNew} className="px-4 py-2.5 bg-amber-500 text-amber-dark text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors">
           + Nuevo Taller
         </button>
       </div>

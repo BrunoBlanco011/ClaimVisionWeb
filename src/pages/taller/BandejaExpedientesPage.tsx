@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { DataTable, StatusBadge, type Column } from '../../components/organisms/DataTable'
 import { SearchInput } from '../../components/molecules/SearchInput'
 import { getAll as getExpedientes } from '../../api/taller/ordenes/ordenes.routes'
+import { getErrorMessage } from '../../api/errors'
+import { useLiveRefresh } from '../../contexts/EventStream'
 import type { Expediente } from '../../api/taller/ordenes/ordenes.schemas'
 import type { StatusVariant } from '../../api/shared/status'
 
@@ -39,17 +41,22 @@ export function BandejaExpedientesPage() {
   const [filters, setFilters] = useState<Record<string, string>>({})
   const [page, setPage] = useState(1)
 
-  useEffect(() => {
+  const load = (silent = false) => {
+    if (!silent) setIsLoading(true)
     getExpedientes()
       .then((result) => {
         setData(result)
         setIsLoading(false)
       })
-      .catch(() => {
-        setError('Error al cargar los expedientes. Intenta de nuevo más tarde.')
+      .catch((err) => {
+        setError(getErrorMessage(err, 'Error al cargar los expedientes. Intenta de nuevo más tarde.'))
         setIsLoading(false)
       })
-  }, [])
+  }
+
+  useEffect(() => { load() }, [])
+
+  useLiveRefresh(['siniestro_updated'], () => load(true))
 
   const filtered = useMemo(() => {
     return data.filter((item) => {

@@ -117,6 +117,22 @@ export async function verificar(id: string): Promise<AseguradoraAdmin> {
   return aseguradoraAdminBackendToFrontend(res)
 }
 
+export async function getDesincorporadas(page: number = 1, pageSize: number = 20): Promise<{ items: AseguradoraAdmin[]; total: number; page: number; pageSize: number; totalPages: number }> {
+  const res = await api.get<PaginatedResponse<AseguradoraResponseDTO>>(`/admin/aseguradoras/desincorporadas?page=${page}&page_size=${pageSize}`)
+  return {
+    items: res.data.map(aseguradoraAdminBackendToFrontend),
+    total: res.total,
+    page: res.page,
+    pageSize: res.page_size,
+    totalPages: res.page_size > 0 ? Math.ceil(res.total / res.page_size) : 0,
+  }
+}
+
+export async function reactivar(id: string): Promise<AseguradoraAdmin> {
+  const res = await api.patch<AseguradoraResponseDTO>(`/admin/aseguradoras/${id}/reactivar`, {})
+  return aseguradoraAdminBackendToFrontend(res)
+}
+
 export async function crearOperador(aseguradoraId: string, data: { nombre: string; email: string; password: string }): Promise<void> {
   await api.post<never>(`/admin/aseguradoras/${aseguradoraId}/operadores`, data)
 }

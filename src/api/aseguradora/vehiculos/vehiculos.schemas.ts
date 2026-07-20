@@ -43,3 +43,12 @@ export interface VehiculoCreateInput {
   vin: string
   color: string
 }
+
+export interface VehiculoUpdateDTO {
+  marca?: string
+  modelo?: string
+  anio?: number
+  placas?: string
+  vin?: string | null
+  color?: string | null
+}

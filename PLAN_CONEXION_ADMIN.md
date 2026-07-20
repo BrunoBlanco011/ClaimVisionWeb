@@ -140,8 +140,8 @@ export interface UsuarioResponseDTO {
   rol: string
   aseguradora_id: string | null
   estado: string
-  fecha_creacion: string
-  fecha_eliminacion: string | null
+  created_at: string
+  deleted_at: string | null
 }
 
 export interface UsuarioRequestDTO {

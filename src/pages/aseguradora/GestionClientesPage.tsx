@@ -7,6 +7,8 @@ import { SearchInput } from '../../components/molecules/SearchInput'
 import { getAll as getClientes, create as createCliente } from '../../api/aseguradora/clientes/clientes.routes'
 import { bloqueoArco, desbloqueoArco } from '../../api/aseguradora/usuarios/usuarios.routes'
 import { useToast } from '../../contexts/Toast'
+import { getErrorMessage } from '../../api/errors'
+import { useLiveRefresh } from '../../contexts/EventStream'
 import type { Cliente } from '../../api/aseguradora/clientes/clientes.schemas'
 
 const PAGE_SIZE = 5
@@ -24,17 +26,16 @@ export function GestionClientesPage() {
   const [arcoTarget, setArcoTarget] = useState<{ usuarioId: string; accion: 'bloqueo' | 'desbloqueo' } | null>(null)
   const [isProcessingArco, setIsProcessingArco] = useState(false)
 
-  useEffect(() => {
-    getClientes().then((result) => {
-      setData(result)
-      setIsLoading(false)
-    })
-  }, [])
-
   const loadData = async () => {
     const result = await getClientes()
     setData(result)
   }
+
+  useEffect(() => {
+    loadData().then(() => setIsLoading(false))
+  }, [])
+
+  useLiveRefresh(['cliente_created', 'cliente_updated'], loadData)
 
   const openNew = () => {
     setFormData(emptyForm)
@@ -49,8 +50,8 @@ export function GestionClientesPage() {
       await loadData()
       setModalOpen(false)
       setFormData(emptyForm)
-    } catch {
-      addToast('error', 'Error al crear el cliente')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al crear el cliente'))
     } finally {
       setIsSubmitting(false)
     }
@@ -68,8 +69,8 @@ export function GestionClientesPage() {
         addToast('success', 'Desbloqueo ARCO aplicado correctamente')
       }
       setArcoTarget(null)
-    } catch {
-      addToast('error', 'Error al procesar la solicitud ARCO')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al procesar la solicitud ARCO'))
     } finally {
       setIsProcessingArco(false)
     }
@@ -122,7 +123,7 @@ export function GestionClientesPage() {
           <h1 className="text-2xl font-bold text-neutral-900">Gestión de Clientes</h1>
           <p className="text-sm text-neutral-500 mt-1">Administra los clientes registrados en el sistema.</p>
         </div>
-        <button type="button" onClick={openNew} className="px-4 py-2.5 bg-primary-800 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
+        <button type="button" onClick={openNew} className="px-4 py-2.5 bg-amber-500 text-amber-dark text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors">
           + Nuevo Cliente
         </button>
       </div>
@@ -131,6 +132,10 @@ export function GestionClientesPage() {
         <div className="w-full sm:w-72">
           <SearchInput value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} placeholder="Buscar por nombre, email o póliza…" />
         </div>
+      </div>
+
+      <div className="bg-warning-50 border border-warning-200 text-warning-700 px-4 py-3 rounded-lg text-sm">
+        Los datos del cliente (nombre, correo, teléfono) los administra el propio cliente desde su app — el backend no expone edición desde el panel de la aseguradora. Aquí solo puedes darlo de alta y bloquear/desbloquear su acceso (ARCO).
       </div>
 
       <DataTable

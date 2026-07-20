@@ -8,6 +8,8 @@ import { getAll as getAjustadores, create as createAjustador, update as updateAj
 import { getAll as getIncidentes } from '../../api/aseguradora/siniestros/siniestros.routes'
 import { bloqueoArco, desbloqueoArco } from '../../api/aseguradora/usuarios/usuarios.routes'
 import { useToast } from '../../contexts/Toast'
+import { getErrorMessage } from '../../api/errors'
+import { useLiveRefresh } from '../../contexts/EventStream'
 import type { Ajustador } from '../../api/aseguradora/ajustadores/ajustadores.schemas'
 
 // GET /aseguradora/crud/ajustadores no devuelve un conteo de siniestros asignados;
@@ -51,17 +53,16 @@ export function GestionAjustadoresPage() {
   const [arcoTarget, setArcoTarget] = useState<{ usuarioId: string; accion: 'bloqueo' | 'desbloqueo' } | null>(null)
   const [isProcessingArco, setIsProcessingArco] = useState(false)
 
-  useEffect(() => {
-    getAjustadores().then(async (result) => {
-      setData(await withIncidentesAsignados(result))
-      setIsLoading(false)
-    })
-  }, [])
-
   const loadData = async () => {
     const result = await getAjustadores()
     setData(await withIncidentesAsignados(result))
   }
+
+  useEffect(() => {
+    loadData().then(() => setIsLoading(false))
+  }, [])
+
+  useLiveRefresh(['ajustador_created', 'ajustador_updated', 'siniestro_updated'], loadData)
 
   const openNew = () => {
     setEditingId(null)
@@ -87,8 +88,8 @@ export function GestionAjustadoresPage() {
       await loadData()
       addToast('success', 'Ajustador eliminado correctamente')
       setDeleteId(null)
-    } catch {
-      addToast('error', 'Error al eliminar el ajustador')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al eliminar el ajustador'))
     } finally {
       setIsDeleting(false)
     }
@@ -108,8 +109,8 @@ export function GestionAjustadoresPage() {
       setModalOpen(false)
       setFormData(emptyForm)
       setEditingId(null)
-    } catch {
-      addToast('error', 'Error al guardar el ajustador')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al guardar el ajustador'))
     } finally {
       setIsSubmitting(false)
     }
@@ -127,8 +128,8 @@ export function GestionAjustadoresPage() {
         addToast('success', 'Desbloqueo ARCO aplicado correctamente')
       }
       setArcoTarget(null)
-    } catch {
-      addToast('error', 'Error al procesar la solicitud ARCO')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al procesar la solicitud ARCO'))
     } finally {
       setIsProcessingArco(false)
     }
@@ -153,7 +154,7 @@ export function GestionAjustadoresPage() {
     { key: 'nombre', header: 'Nombre', sortable: true },
     { key: 'email', header: 'Email', sortable: true },
     { key: 'telefono', header: 'Teléfono' },
-    { key: 'especialidad', header: 'Especialidad', sortable: true },
+    { key: 'especialidad', header: 'Cédula profesional', sortable: true },
     { key: 'incidentesAsignados', header: 'Incidentes', sortable: true },
     {
       key: 'estado',
@@ -199,14 +200,14 @@ export function GestionAjustadoresPage() {
           <h1 className="text-2xl font-bold text-neutral-900">Gestión de Ajustadores</h1>
           <p className="text-sm text-neutral-500 mt-1">Administra los ajustadores registrados en el sistema.</p>
         </div>
-        <button type="button" onClick={openNew} className="px-4 py-2.5 bg-primary-800 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
+        <button type="button" onClick={openNew} className="px-4 py-2.5 bg-amber-500 text-amber-dark text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors">
           + Nuevo Ajustador
         </button>
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
         <div className="w-full sm:w-72">
-          <SearchInput value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} placeholder="Buscar por nombre, email o especialidad…" />
+          <SearchInput value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} placeholder="Buscar por nombre, email o cédula profesional…" />
         </div>
         <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }} className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-600">
           {statusOptions.map((opt) => (

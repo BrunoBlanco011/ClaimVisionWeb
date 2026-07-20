@@ -3,22 +3,35 @@ import { SearchInput } from '../../components/molecules/SearchInput'
 import { StatusBadge } from '../../components/atoms/StatusBadge'
 import { getAll as getTalleres } from '../../api/admin/talleres/talleres.routes'
 import { getAll as getAseguradoras } from '../../api/admin/aseguradoras/aseguradoras.routes'
+import { getErrorMessage } from '../../api/errors'
+import { useLiveRefresh } from '../../contexts/EventStream'
 import type { TallerAdmin } from '../../api/admin/talleres/talleres.schemas'
 
 export function GestionTalleresAdminPage() {
   const [talleres, setTalleres] = useState<TallerAdmin[]>([])
   const [aseguradoras, setAseguradoras] = useState<{ id: string; nombre: string }[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [aseguradoraFilter, setAseguradoraFilter] = useState('')
 
-  useEffect(() => {
-    Promise.all([getTalleres(), getAseguradoras()]).then(([t, aseg]) => {
-      setTalleres(t)
-      setAseguradoras(aseg.items.map((a) => ({ id: a.id, nombre: a.nombre })))
-      setIsLoading(false)
-    })
-  }, [])
+  const load = (silent = false) => {
+    if (!silent) setIsLoading(true)
+    Promise.all([getTalleres(), getAseguradoras()])
+      .then(([t, aseg]) => {
+        setTalleres(t)
+        setAseguradoras(aseg.items.map((a) => ({ id: a.id, nombre: a.nombre })))
+        setIsLoading(false)
+      })
+      .catch((err) => {
+        setError(getErrorMessage(err, 'Error al cargar los talleres'))
+        setIsLoading(false)
+      })
+  }
+
+  useEffect(() => { load() }, [])
+
+  useLiveRefresh(['taller_created', 'taller_updated'], () => load(true))
 
   const aseguradoraNombre = (id: string) => aseguradoras.find((a) => a.id === id)?.nombre ?? id
 
@@ -52,6 +65,12 @@ export function GestionTalleresAdminPage() {
           ))}
         </select>
       </div>
+
+      {error && (
+        <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
 
       <div className="bg-white rounded-xl border border-neutral-200 shadow-sm">
         <div className="px-5 py-4 border-b border-neutral-100">

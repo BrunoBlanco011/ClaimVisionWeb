@@ -73,7 +73,7 @@ export function CrudModal({ open, title, onClose, onSubmit, children, isSubmitti
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2.5 text-sm font-medium text-white bg-primary-800 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+              className="px-4 py-2.5 text-sm font-medium text-amber-dark bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
             >
               {isSubmitting ? 'Guardando…' : submitLabel}
             </button>

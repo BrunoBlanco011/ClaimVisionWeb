@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AuthLayout } from '../../components/templates/AuthLayout'
+import { AuthSplitLayout } from '../../components/templates/AuthSplitLayout'
 import { LoginForm } from '../../components/organisms/LoginForm'
+import { AuthBrandPanel } from '../../components/organisms/AuthBrandPanel'
 import { useAuth } from '../../contexts/useAuth'
 import { login } from '../../api/auth/auth.routes'
 import type { LoginCredentials } from '../../components/organisms/LoginForm'
@@ -34,12 +35,12 @@ export function LoginPage() {
   }
 
   return (
-    <AuthLayout backgroundVariant="gradient">
+    <AuthSplitLayout brandPanel={<AuthBrandPanel />}>
       <LoginForm
         onSubmit={handleLogin}
         isLoading={isLoading}
         error={authError}
       />
-    </AuthLayout>
+    </AuthSplitLayout>
   )
 }

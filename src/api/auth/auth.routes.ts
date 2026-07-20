@@ -55,6 +55,10 @@ export async function logout(): Promise<void> {
   localStorage.removeItem('claimvision_token')
 }
 
+export async function changePassword(oldPassword: string, newPassword: string): Promise<void> {
+  await api.patch<unknown>('/auth/password', { old_password: oldPassword, new_password: newPassword })
+}
+
 export async function getCurrentUser(): Promise<User | null> {
   if (MOCK) return null
   try {

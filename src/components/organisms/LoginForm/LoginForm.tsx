@@ -1,8 +1,28 @@
 import { useState } from 'react'
-import { Logo } from '../../atoms/Logo'
 import { Button } from '../../atoms/Button'
 import { ErrorMessage } from '../../atoms/ErrorMessage'
 import { FormField } from '../../molecules/FormField'
+
+const iconProps = {
+  className: 'h-4 w-4',
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 2,
+  'aria-hidden': true,
+} as const
+
+const MailIcon = () => (
+  <svg {...iconProps}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+  </svg>
+)
+
+const LockIcon = () => (
+  <svg {...iconProps}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+  </svg>
+)
 
 export interface LoginCredentials {
   email: string
@@ -60,16 +80,13 @@ export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-7">
       {/* Encabezado */}
-      <div className="flex flex-col items-center gap-3">
-        <Logo size="lg" variant="full" />
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-neutral-900">Iniciar sesión</h1>
-          <p className="text-sm text-neutral-500 mt-1">
-            Ingresa tus credenciales para continuar
-          </p>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-neutral-900 sm:text-3xl">Bienvenido de nuevo</h1>
+        <p className="mt-2 text-sm text-neutral-500">
+          Ingresa tus credenciales para acceder a tu cuenta
+        </p>
       </div>
 
       {/* Campos */}
@@ -78,6 +95,7 @@ export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps
           label="Correo electrónico"
           type="email"
           required
+          icon={<MailIcon />}
           error={touched.email ? errors.email : undefined}
           inputProps={{
             value: email,
@@ -93,6 +111,7 @@ export function LoginForm({ onSubmit, isLoading = false, error }: LoginFormProps
           label="Contraseña"
           type="password"
           required
+          icon={<LockIcon />}
           error={touched.password ? errors.password : undefined}
           inputProps={{
             value: password,

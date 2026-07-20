@@ -1,5 +1,5 @@
 import { api } from '../../client'
-import type { Vehiculo, VehiculoResponseDTO, VehiculoCreateDTO, VehiculoCreateInput } from './vehiculos.schemas'
+import type { Vehiculo, VehiculoResponseDTO, VehiculoCreateDTO, VehiculoCreateInput, VehiculoUpdateDTO } from './vehiculos.schemas'
 
 function vehiculoBackendToFrontend(dto: VehiculoResponseDTO): Vehiculo {
   return {
@@ -33,4 +33,29 @@ export async function create(clienteId: string, data: VehiculoCreateInput): Prom
   }
   const res = await api.post<VehiculoResponseDTO>('/aseguradora/crud/vehiculos', dto)
   return vehiculoBackendToFrontend(res)
+}
+
+export async function createFromPoliza(clienteId: string, file: File): Promise<Vehiculo> {
+  const formData = new FormData()
+  formData.append('cliente_id', clienteId)
+  formData.append('file', file)
+  const res = await api.postForm<VehiculoResponseDTO>('/aseguradora/crud/vehiculos/from-poliza', formData)
+  return vehiculoBackendToFrontend(res)
+}
+
+export async function update(id: string, data: VehiculoCreateInput): Promise<Vehiculo> {
+  const dto: VehiculoUpdateDTO = {
+    marca: data.marca,
+    modelo: data.modelo,
+    anio: data.anio,
+    placas: data.placas,
+    vin: data.vin || null,
+    color: data.color || null,
+  }
+  const res = await api.put<VehiculoResponseDTO>(`/aseguradora/crud/vehiculos/${id}`, dto)
+  return vehiculoBackendToFrontend(res)
+}
+
+export async function remove(id: string): Promise<void> {
+  await api.delete(`/aseguradora/crud/vehiculos/${id}`)
 }

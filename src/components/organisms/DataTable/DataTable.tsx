@@ -132,14 +132,15 @@ export function DataTable<T>({
                 </td>
               </tr>
             ) : (
-              sorted.map((item) => (
+              sorted.map((item, i) => (
                 <tr
                   key={keyExtractor(item)}
                   onClick={() => onRowClick?.(item)}
                   className={[
-                    'border-b border-neutral-100 last:border-b-0 transition-colors',
+                    'border-b border-neutral-100 last:border-b-0 transition-colors animate-fade-up',
                     onRowClick ? 'cursor-pointer hover:bg-neutral-50' : '',
                   ].join(' ')}
+                  style={{ animationDelay: `${Math.min(i, 10) * 30}ms` }}
                 >
                   {columns.map((col) => (
                     <td

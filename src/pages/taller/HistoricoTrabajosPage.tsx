@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { DataTable, StatusBadge, type Column } from '../../components/organisms/DataTable'
 import { SearchInput } from '../../components/molecules/SearchInput'
 import { getAll as getExpedientes } from '../../api/taller/ordenes/ordenes.routes'
+import { getErrorMessage } from '../../api/errors'
+import { useLiveRefresh } from '../../contexts/EventStream'
 import type { Expediente } from '../../api/taller/ordenes/ordenes.schemas'
 
 const PAGE_SIZE = 5
@@ -28,7 +30,8 @@ export function HistoricoTrabajosPage() {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
 
-  useEffect(() => {
+  const load = (silent = false) => {
+    if (!silent) setIsLoading(true)
     getExpedientes()
       .then((result) => {
         // Trabajos concluidos = expedientes que llegaron a Trabajo_Concluido/Listo_Para_Entrega/Entregado
@@ -36,11 +39,15 @@ export function HistoricoTrabajosPage() {
         setData(result.filter((e) => e.estado === 'completado'))
         setIsLoading(false)
       })
-      .catch(() => {
-        setError('Error al cargar el historial de trabajos. Intenta de nuevo más tarde.')
+      .catch((err) => {
+        setError(getErrorMessage(err, 'Error al cargar el historial de trabajos. Intenta de nuevo más tarde.'))
         setIsLoading(false)
       })
-  }, [])
+  }
+
+  useEffect(() => { load() }, [])
+
+  useLiveRefresh(['siniestro_updated'], () => load(true))
 
   const filtered = useMemo(() => {
     return data.filter((item) => {

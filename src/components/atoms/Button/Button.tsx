@@ -10,10 +10,11 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
+  // Botón primario de marca: fondo ámbar, texto amberDark (contraste accesible sobre ámbar).
   primary:
-    'bg-primary-800 text-white hover:bg-primary-700 focus-visible:ring-primary-600 border-transparent',
+    'bg-amber-500 text-amber-dark shadow-sm hover:bg-amber-600 hover:shadow-md focus-visible:ring-amber-600 border-transparent',
   secondary:
-    'bg-white text-primary-800 hover:bg-primary-50 focus-visible:ring-primary-600 border-primary-800',
+    'bg-white text-primary-800 shadow-sm hover:bg-primary-50 hover:shadow-md focus-visible:ring-primary-600 border-primary-200',
   ghost:
     'bg-transparent text-neutral-600 hover:bg-neutral-100 focus-visible:ring-neutral-400 border-transparent',
 }
@@ -65,10 +66,10 @@ export function Button({
       aria-disabled={isDisabled}
       className={[
         'inline-flex items-center justify-center gap-2',
-        'font-medium rounded-md border',
-        'transition-colors duration-150',
+        'font-medium rounded-lg border',
+        'transition-all duration-150 active:scale-[0.98]',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-        'disabled:opacity-50 disabled:cursor-not-allowed',
+        'disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 disabled:hover:shadow-sm',
         'w-full',
         variantClasses[variant],
         sizeClasses[size],

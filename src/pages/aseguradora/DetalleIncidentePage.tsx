@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { StatusBadge } from '../../components/atoms/StatusBadge'
+import { ConfirmDialog } from '../../components/molecules/ConfirmDialog'
+import { getErrorMessage } from '../../api/errors'
 import {
   getById as getIncidenteById,
   assignAjustador,
@@ -12,6 +14,7 @@ import {
 import { getAll as getAjustadores } from '../../api/aseguradora/ajustadores/ajustadores.routes'
 import { getAll as getTalleres } from '../../api/aseguradora/talleres/talleres.routes'
 import { useToast } from '../../contexts/Toast'
+import { useLiveRefresh } from '../../contexts/EventStream'
 import type { IncidenteDetalle, TimelineEvent } from '../../api/aseguradora/siniestros/siniestros.schemas'
 import type { Ajustador } from '../../api/aseguradora/ajustadores/ajustadores.schemas'
 import type { Taller } from '../../api/aseguradora/talleres/talleres.schemas'
@@ -53,6 +56,8 @@ export function DetalleIncidentePage() {
 
   const [processingEntrega, setProcessingEntrega] = useState(false)
   const [processingCotizacion, setProcessingCotizacion] = useState(false)
+  const [confirmingEntrega, setConfirmingEntrega] = useState(false)
+  const [confirmingRechazo, setConfirmingRechazo] = useState(false)
 
   useEffect(() => {
     setIsLoading(true)
@@ -80,8 +85,8 @@ export function DetalleIncidentePage() {
       addToast('success', 'Ajustador asignado correctamente')
       setAjustadorId('')
       await refreshIncidente()
-    } catch {
-      addToast('error', 'Error al asignar ajustador')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al asignar ajustador'))
     } finally {
       setAssigningAjustador(false)
     }
@@ -95,8 +100,8 @@ export function DetalleIncidentePage() {
       addToast('success', 'Taller asignado correctamente')
       setTallerId('')
       await refreshIncidente()
-    } catch {
-      addToast('error', 'Error al asignar taller')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al asignar taller'))
     } finally {
       setAssigningTaller(false)
     }
@@ -108,14 +113,23 @@ export function DetalleIncidentePage() {
     setEvents(incResult.timeline)
   }
 
+  useLiveRefresh(
+    ['siniestro_updated', 'peritaje_updated', 'cotizacion_created', 'cotizacion_updated', 'imagen_uploaded'],
+    (data) => {
+      const payload = data as { siniestro_id?: string } | null
+      if (!payload?.siniestro_id || payload.siniestro_id === id) refreshIncidente()
+    },
+  )
+
   const handleAutorizarEntrega = async () => {
     setProcessingEntrega(true)
     try {
       await autorizarEntrega(id)
       addToast('success', 'Entrega autorizada correctamente')
       await refreshIncidente()
-    } catch {
-      addToast('error', 'Error al autorizar la entrega')
+      setConfirmingEntrega(false)
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al autorizar la entrega'))
     } finally {
       setProcessingEntrega(false)
     }
@@ -128,8 +142,8 @@ export function DetalleIncidentePage() {
       await aprobarCotizacion(incidente.cotizacionId)
       addToast('success', 'Cotización aprobada correctamente')
       await refreshIncidente()
-    } catch {
-      addToast('error', 'Error al aprobar la cotización')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al aprobar la cotización'))
     } finally {
       setProcessingCotizacion(false)
     }
@@ -142,8 +156,9 @@ export function DetalleIncidentePage() {
       await rechazarCotizacion(incidente.cotizacionId)
       addToast('success', 'Cotización rechazada')
       await refreshIncidente()
-    } catch {
-      addToast('error', 'Error al rechazar la cotización')
+      setConfirmingRechazo(false)
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al rechazar la cotización'))
     } finally {
       setProcessingCotizacion(false)
     }
@@ -265,7 +280,7 @@ export function DetalleIncidentePage() {
                 <button
                   type="button"
                   disabled={processingCotizacion}
-                  onClick={handleRechazarCotizacion}
+                  onClick={() => setConfirmingRechazo(true)}
                   className="px-4 py-2 bg-error-600 text-white text-sm font-medium rounded-md hover:bg-error-700 transition-colors disabled:opacity-50"
                 >
                   {processingCotizacion ? 'Procesando…' : 'Rechazar Cotización'}
@@ -281,8 +296,8 @@ export function DetalleIncidentePage() {
               <button
                 type="button"
                 disabled={processingEntrega}
-                onClick={handleAutorizarEntrega}
-                className="px-4 py-2 bg-primary-800 text-white text-sm font-medium rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50"
+                onClick={() => setConfirmingEntrega(true)}
+                className="px-4 py-2 bg-amber-500 text-amber-dark text-sm font-medium rounded-md hover:bg-amber-600 transition-colors disabled:opacity-50"
               >
                 {processingEntrega ? 'Procesando…' : 'Autorizar Entrega'}
               </button>
@@ -309,7 +324,7 @@ export function DetalleIncidentePage() {
                 type="button"
                 disabled={!ajustadorId || assigningAjustador}
                 onClick={handleAssignAjustador}
-                className="w-full sm:w-auto px-4 py-2 bg-primary-800 text-white text-sm font-medium rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto px-4 py-2 bg-amber-500 text-amber-dark text-sm font-medium rounded-md hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {assigningAjustador ? 'Asignando…' : 'Asignar'}
               </button>
@@ -336,7 +351,7 @@ export function DetalleIncidentePage() {
                 type="button"
                 disabled={!tallerId || assigningTaller}
                 onClick={handleAssignTaller}
-                className="w-full sm:w-auto px-4 py-2 bg-primary-800 text-white text-sm font-medium rounded-md hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto px-4 py-2 bg-amber-500 text-amber-dark text-sm font-medium rounded-md hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {assigningTaller ? 'Asignando…' : 'Asignar'}
               </button>
@@ -365,6 +380,27 @@ export function DetalleIncidentePage() {
           </section>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmingRechazo}
+        title="Rechazar cotización"
+        message="¿Estás seguro de que deseas rechazar la cotización enviada por el taller? El taller deberá enviar una nueva."
+        confirmLabel="Rechazar"
+        variant="danger"
+        onConfirm={handleRechazarCotizacion}
+        onCancel={() => setConfirmingRechazo(false)}
+        isConfirming={processingCotizacion}
+      />
+
+      <ConfirmDialog
+        open={confirmingEntrega}
+        title="Autorizar entrega"
+        message="¿Confirmas que el vehículo puede entregarse al asegurado? Esta acción marcará el siniestro como entregado."
+        confirmLabel="Autorizar"
+        onConfirm={handleAutorizarEntrega}
+        onCancel={() => setConfirmingEntrega(false)}
+        isConfirming={processingEntrega}
+      />
     </div>
   )
 }

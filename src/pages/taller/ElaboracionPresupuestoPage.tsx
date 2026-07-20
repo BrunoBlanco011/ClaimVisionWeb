@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import jsPDF from 'jspdf'
 import { create as createPresupuesto } from '../../api/taller/cotizaciones/cotizaciones.routes'
 import { getById as getExpedienteById } from '../../api/taller/ordenes/ordenes.routes'
 import { useToast } from '../../contexts/Toast'
+import { getErrorMessage } from '../../api/errors'
 import type { Part, VehicleData } from '../../api/taller/cotizaciones/cotizaciones.schemas'
 
 const IVA_RATE = 0.16
@@ -16,6 +18,88 @@ function formatCurrency(n: number): string {
   return `$${n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
+function buildPresupuestoPdf(params: {
+  vehicle: VehicleData
+  parts: Part[]
+  hours: number
+  hourlyRate: number
+  partsTotal: number
+  laborTotal: number
+  subtotal: number
+  iva: number
+  total: number
+}): jsPDF {
+  const { vehicle, parts, hours, hourlyRate, partsTotal, laborTotal, subtotal, iva, total } = params
+  const doc = new jsPDF()
+  const marginX = 14
+  let y = 20
+
+  doc.setFontSize(16)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Desglose de Cotización', marginX, y)
+  y += 10
+
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.text(`Fecha: ${new Date().toLocaleDateString('es-MX')}`, marginX, y)
+  y += 8
+
+  doc.setFont('helvetica', 'bold')
+  doc.text('Datos del Vehículo', marginX, y)
+  y += 6
+  doc.setFont('helvetica', 'normal')
+  doc.text(`Expediente: ${vehicle.expediente || '-'}`, marginX, y)
+  y += 5
+  doc.text(`Marca / Modelo: ${vehicle.brand || '-'} ${vehicle.model || ''}`, marginX, y)
+  y += 5
+  doc.text(`Año: ${vehicle.year || '-'}    Placa: ${vehicle.plate || '-'}`, marginX, y)
+  y += 10
+
+  doc.setFont('helvetica', 'bold')
+  doc.text('Repuestos', marginX, y)
+  y += 6
+  doc.setFontSize(9)
+  doc.text('Código', marginX, y)
+  doc.text('Descripción', marginX + 25, y)
+  doc.text('Cant.', marginX + 110, y)
+  doc.text('P. Unit.', marginX + 130, y)
+  doc.text('Total', marginX + 160, y)
+  y += 2
+  doc.line(marginX, y, 196, y)
+  y += 5
+  doc.setFont('helvetica', 'normal')
+  for (const part of parts) {
+    doc.text(part.code || '-', marginX, y)
+    doc.text(part.description || '-', marginX + 25, y, { maxWidth: 82 })
+    doc.text(String(part.quantity), marginX + 110, y)
+    doc.text(formatCurrency(part.unitPrice), marginX + 130, y)
+    doc.text(formatCurrency(part.quantity * part.unitPrice), marginX + 160, y)
+    y += 6
+  }
+  y += 4
+
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Mano de Obra', marginX, y)
+  y += 6
+  doc.setFont('helvetica', 'normal')
+  doc.text(`${hours} hrs x ${formatCurrency(hourlyRate)} = ${formatCurrency(laborTotal)}`, marginX, y)
+  y += 10
+
+  doc.line(marginX, y, 196, y)
+  y += 8
+  doc.text(`Subtotal refacciones: ${formatCurrency(partsTotal)}`, marginX, y)
+  y += 6
+  doc.text(`Subtotal: ${formatCurrency(subtotal)}`, marginX, y)
+  y += 6
+  doc.text(`IVA (16%): ${formatCurrency(iva)}`, marginX, y)
+  y += 6
+  doc.setFont('helvetica', 'bold')
+  doc.text(`Total: ${formatCurrency(total)}`, marginX, y)
+
+  return doc
+}
+
 export function ElaboracionPresupuestoPage() {
   const navigate = useNavigate()
   const { addToast } = useToast()
@@ -24,7 +108,7 @@ export function ElaboracionPresupuestoPage() {
   const [parts, setParts] = useState<Part[]>([])
   const [hours, setHours] = useState(0)
   const [hourlyRate, setHourlyRate] = useState(0)
-  const [desglosePdfUrl, setDesglosePdfUrl] = useState('')
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [isLoadingExpediente, setIsLoadingExpediente] = useState(false)
 
@@ -39,7 +123,7 @@ export function ElaboracionPresupuestoPage() {
         const brand = parts[0] ?? ''
         setVehicle({ brand, model, year, plate: exp.placa, expediente: exp.numero })
       })
-      .catch(() => addToast('error', 'Error al cargar los datos del expediente'))
+      .catch((err) => addToast('error', getErrorMessage(err, 'Error al cargar los datos del expediente')))
       .finally(() => setIsLoadingExpediente(false))
   }, [id, addToast])
 
@@ -65,22 +149,40 @@ export function ElaboracionPresupuestoPage() {
     setVehicle((prev) => ({ ...prev, [field]: e.target.value }))
   }
 
-  const canSubmit = Boolean(id) && vehicle.brand && vehicle.model && parts.some((p) => p.code && p.description && p.unitPrice > 0) && hours > 0 && hourlyRate > 0 && desglosePdfUrl.trim().length > 0
+  const canGeneratePdf = vehicle.brand && vehicle.model && parts.some((p) => p.code && p.description && p.unitPrice > 0) && hours > 0 && hourlyRate > 0
+  const canSubmit = Boolean(id) && canGeneratePdf && pdfBlob !== null
+
+  const handleGeneratePdf = () => {
+    const doc = buildPresupuestoPdf({ vehicle, parts, hours, hourlyRate, partsTotal, laborTotal, subtotal, iva, total })
+    setPdfBlob(doc.output('blob'))
+    addToast('success', 'PDF generado. Descárgalo o continúa para enviar el presupuesto.')
+  }
+
+  const handleDownloadPdf = () => {
+    if (!pdfBlob) return
+    const url = URL.createObjectURL(pdfBlob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `cotizacion-${vehicle.expediente || id || 'presupuesto'}.pdf`
+    link.click()
+    URL.revokeObjectURL(url)
+  }
 
   const handleSubmit = async () => {
-    if (!canSubmit || !id) return
+    if (!canSubmit || !id || !pdfBlob) return
     setSubmitting(true)
     try {
-      await createPresupuesto({ vehicle, parts, hours, hourlyRate, expedienteId: id })
+      const pdfFilename = `cotizacion-${vehicle.expediente || id}.pdf`
+      await createPresupuesto({ vehicle, parts, hours, hourlyRate, siniestroId: id, pdfFile: pdfBlob, pdfFilename })
       setVehicle({ brand: '', model: '', year: '', plate: '', expediente: '' })
       setParts([])
       setHours(0)
       setHourlyRate(0)
-      setDesglosePdfUrl('')
+      setPdfBlob(null)
       addToast('success', 'Presupuesto enviado exitosamente')
       navigate('/taller/bandeja')
-    } catch {
-      addToast('error', 'Error al enviar el presupuesto')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al enviar el presupuesto'))
     } finally {
       setSubmitting(false)
     }
@@ -179,11 +281,28 @@ export function ElaboracionPresupuestoPage() {
           </section>
 
           <section className="bg-white rounded-xl border border-neutral-200 p-6">
-            <h2 className="text-lg font-semibold text-neutral-900 mb-4">Desglose en PDF</h2>
-            <p className="text-sm text-neutral-500 mb-3">
-              Sube el desglose de la cotización a tu almacenamiento (Supabase Storage u otro) y pega aquí la URL pública. El backend la requiere para registrar la cotización.
+            <h2 className="text-lg font-semibold text-neutral-900 mb-4">PDF de la Cotización</h2>
+            <p className="text-sm text-neutral-500 mb-4">
+              Genera el desglose en PDF con los datos capturados arriba. Al enviar el presupuesto, el PDF se sube a Supabase Storage como parte de la misma solicitud.
             </p>
-            <InputField label="URL del PDF" value={desglosePdfUrl} onChange={(e) => setDesglosePdfUrl(e.target.value)} placeholder="https://…/desglose.pdf" />
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                disabled={!canGeneratePdf}
+                onClick={handleGeneratePdf}
+                className="px-4 py-2 text-sm font-medium text-amber-dark bg-amber-500 rounded-md hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Generar PDF
+              </button>
+              <button
+                type="button"
+                disabled={!pdfBlob}
+                onClick={handleDownloadPdf}
+                className="px-4 py-2 text-sm font-medium text-primary-700 bg-primary-50 rounded-md hover:bg-primary-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Descargar PDF
+              </button>
+            </div>
           </section>
         </div>
 
@@ -201,7 +320,7 @@ export function ElaboracionPresupuestoPage() {
             </div>
           </section>
 
-          <button type="button" disabled={!canSubmit || submitting} onClick={handleSubmit} className="w-full py-3 px-6 bg-primary-800 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          <button type="button" disabled={!canSubmit || submitting} onClick={handleSubmit} className="w-full py-3 px-6 bg-amber-500 text-amber-dark font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             {submitting ? 'Enviando…' : 'Enviar Presupuesto'}
           </button>
         </div>

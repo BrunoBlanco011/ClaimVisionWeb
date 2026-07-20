@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { DataTable, StatusBadge, type Column } from '../../components/organisms/DataTable'
 import { SearchInput } from '../../components/molecules/SearchInput'
 import { getAll as getIncidentes } from '../../api/aseguradora/siniestros/siniestros.routes'
+import { getErrorMessage } from '../../api/errors'
+import { useLiveRefresh } from '../../contexts/EventStream'
 import type { Incidente } from '../../api/aseguradora/siniestros/siniestros.schemas'
 
 const PAGE_SIZE = 5
@@ -49,16 +51,27 @@ export function BandejaIncidentesPage() {
   const navigate = useNavigate()
   const [data, setData] = useState<Incidente[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({})
   const [page, setPage] = useState(1)
 
-  useEffect(() => {
-    getIncidentes().then((result) => {
-      setData(result)
-      setIsLoading(false)
-    })
-  }, [])
+  const load = (silent = false) => {
+    if (!silent) setIsLoading(true)
+    getIncidentes()
+      .then((result) => {
+        setData(result)
+        setIsLoading(false)
+      })
+      .catch((err) => {
+        setError(getErrorMessage(err, 'Error al cargar los incidentes'))
+        setIsLoading(false)
+      })
+  }
+
+  useEffect(() => { load() }, [])
+
+  useLiveRefresh(['siniestro_created', 'siniestro_updated'], () => load(true))
 
   const filtered = useMemo(() => {
     return data.filter((item) => {
@@ -115,6 +128,12 @@ export function BandejaIncidentesPage() {
           </button>
         )}
       </div>
+
+      {error && (
+        <div className="bg-error-50 border border-error-200 text-error-700 px-4 py-3 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
 
       <DataTable
         columns={columns}

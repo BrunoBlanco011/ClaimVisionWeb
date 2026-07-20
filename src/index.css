@@ -1,54 +1,77 @@
 @import "tailwindcss";
 
 @theme {
-  /* Paleta primaria — azul corporativo */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-200: #bfdbfe;
-  --color-primary-300: #93c5fd;
-  --color-primary-400: #60a5fa;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-800: #1e3a8a;
-  --color-primary-900: #1e3a8a;
+  /* Paleta primaria — "blueprint" (navy), extraída de la app móvil (Flutter) */
+  --color-primary-50:  #F4F7FB;
+  --color-primary-100: #E5ECF6;
+  --color-primary-200: #C6D6EC;
+  --color-primary-300: #9AB7DF;
+  --color-primary-400: #6190D1;
+  --color-primary-500: #336FC1;
+  --color-primary-600: #245394;
+  --color-primary-700: #193E71;
+  --color-primary-800: #14305C; /* blueprintLight */
+  --color-primary-900: #0A1F3C; /* blueprint */
 
-  /* Grises neutros */
-  --color-neutral-50:  #f8fafc;
-  --color-neutral-100: #f1f5f9;
-  --color-neutral-200: #e2e8f0;
-  --color-neutral-300: #cbd5e1;
-  --color-neutral-400: #94a3b8;
-  --color-neutral-500: #64748b;
-  --color-neutral-600: #475569;
-  --color-neutral-700: #334155;
-  --color-neutral-800: #1e293b;
-  --color-neutral-900: #0f172a;
+  /* Grises neutros (= paleta "gray" de la app móvil: borderLight/textHint/textSecondary) */
+  --color-neutral-50:  #F9FAFB;
+  --color-neutral-100: #F3F4F6;
+  --color-neutral-200: #E5E7EB; /* borderLight */
+  --color-neutral-300: #D1D5DB;
+  --color-neutral-400: #9CA3AF; /* textHint */
+  --color-neutral-500: #6B7280; /* textSecondary */
+  --color-neutral-600: #4B5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1F2937;
+  --color-neutral-900: #111827;
 
-  /* Estados */
-  --color-error-50:   #fef2f2;
-  --color-error-100:  #fee2e2;
-  --color-error-500:  #ef4444;
-  --color-error-600:  #dc2626;
-  --color-error-700:  #b91c1c;
+  /* Estados — "alert" */
+  --color-error-50:   #FFECEB;
+  --color-error-100:  #FFD4D1;
+  --color-error-200:  #FFAAA3;
+  --color-error-500:  #FF5A4D;
+  --color-error-600:  #F93424;
+  --color-error-700:  #DF1B0C;
 
-  --color-success-50:  #f0fdf4;
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
+  /* Estados — "success" */
+  --color-success-50:  #EBF9F3;
+  --color-success-500: #2EC27E;
+  --color-success-600: #279B66;
 
-  --color-warning-50:  #fffbeb;
-  --color-warning-500: #f59e0b;
-  --color-warning-600: #d97706;
+  /* Acento de marca — "amber" (también sirve de warning / severidad media) */
+  --color-amber-50:  #FEF6EC;
+  --color-amber-100: #FDECD3;
+  --color-amber-200: #FBD8A7;
+  --color-amber-300: #FAC57A;
+  --color-amber-400: #FAB85C;
+  --color-amber-500: #FEAD3B;
+  --color-amber-600: #F39716;
+  --color-amber-700: #D5810B;
+  --color-amber-800: #AE6A09;
+  --color-amber-900: #834F07;
+  --color-amber-dark: #6D4400; /* texto sobre botón ámbar (contraste accesible) */
 
-  /* Admin accent — naranja */
-  --color-admin-50:   #fff7ed;
-  --color-admin-100:  #ffedd5;
-  --color-admin-200:  #fed7aa;
-  --color-admin-300:  #fdba74;
-  --color-admin-400:  #fb923c;
-  --color-admin-500:  #f97316;
-  --color-admin-600:  #ea580c;
-  --color-admin-700:  #c2410c;
+  --color-warning-50:  var(--color-amber-50);
+  --color-warning-500: var(--color-amber-500);
+  --color-warning-600: var(--color-amber-600);
+
+  /* Acento "admin" alineado al mismo ámbar de marca (ya no es un color aparte) */
+  --color-admin-50:  var(--color-amber-50);
+  --color-admin-100: var(--color-amber-100);
+  --color-admin-200: var(--color-amber-200);
+  --color-admin-300: var(--color-amber-300);
+  --color-admin-400: var(--color-amber-400);
+  --color-admin-500: var(--color-amber-500);
+  --color-admin-600: var(--color-amber-600);
+  --color-admin-700: var(--color-amber-700);
+
+  /* Auxiliares de marca (usos puntuales — paneles oscuros, banners) */
+  --color-accent-blue:  #B4C7EC;
+  --color-deep-navy:    #000616;
+  --color-banner-navy:  #1A3A5C;
+  --color-input-border: #C4C6CE;
+  --color-checkbox-green: #009A60;
+  --color-app-bg: #F7FAFD; /* fondo de pantalla, distinto de --color-neutral-50 */
 
   /* Tipografía */
   --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
@@ -59,11 +82,11 @@
   --font-size-xl:   1.25rem;
   --font-size-2xl:  1.5rem;
 
-  /* Radios */
+  /* Radios — 12px/16px de referencia de la app móvil */
   --radius-sm:  0.375rem;
-  --radius-md:  0.5rem;
-  --radius-lg:  0.75rem;
-  --radius-xl:  1rem;
+  --radius-md:  0.75rem;
+  --radius-lg:  1rem;
+  --radius-xl:  1.25rem;
   --radius-full: 9999px;
 
   /* Sombras */
@@ -75,6 +98,7 @@
   /* Transiciones */
   --transition-fast:   150ms ease;
   --transition-normal: 200ms ease;
+  --ease-out-smooth: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
@@ -91,8 +115,8 @@
 
   body {
     margin: 0;
-    background-color: var(--color-neutral-50);
-    color: var(--color-neutral-900);
+    background-color: var(--color-app-bg);
+    color: var(--color-primary-900);
   }
 
   @keyframes slide-in {
@@ -102,5 +126,29 @@
 
   .animate-slide-in {
     animation: slide-in 0.25s ease-out;
+  }
+
+  @keyframes fade-up {
+    from { transform: translateY(8px); opacity: 0; }
+    to   { transform: translateY(0);   opacity: 1; }
+  }
+
+  .animate-fade-up {
+    animation: fade-up 0.35s var(--ease-out-smooth) both;
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-up, .animate-fade-in, .animate-slide-in {
+      animation: none;
+    }
   }
 }

@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react'
 import { CrudModal } from '../../components/organisms/CrudModal'
+import { ConfirmDialog } from '../../components/molecules/ConfirmDialog'
 import { VehiculoForm, type VehiculoFormData } from '../../components/molecules/VehiculoForm'
 import { VehiculoCard } from '../../components/molecules/VehiculoCard'
+import { Label } from '../../components/atoms/Label'
 import { getAll as getClientes } from '../../api/aseguradora/clientes/clientes.routes'
-import { getByCliente, create as createVehiculo } from '../../api/aseguradora/vehiculos/vehiculos.routes'
+import { getByCliente, create as createVehiculo, createFromPoliza, update as updateVehiculo, remove as removeVehiculo } from '../../api/aseguradora/vehiculos/vehiculos.routes'
 import { useToast } from '../../contexts/Toast'
+import { getErrorMessage } from '../../api/errors'
+import { useLiveRefresh } from '../../contexts/EventStream'
 import type { Cliente } from '../../api/aseguradora/clientes/clientes.schemas'
 import type { Vehiculo } from '../../api/aseguradora/vehiculos/vehiculos.schemas'
 
 const emptyForm: VehiculoFormData = { marca: '', modelo: '', anio: '', placas: '', vin: '', color: '' }
+
+type CreateMode = 'manual' | 'poliza'
 
 export function GestionVehiculosPage() {
   const { addToast } = useToast()
@@ -19,7 +25,12 @@ export function GestionVehiculosPage() {
   const [isLoadingVehiculos, setIsLoadingVehiculos] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [formData, setFormData] = useState<VehiculoFormData>(emptyForm)
+  const [createMode, setCreateMode] = useState<CreateMode>('manual')
+  const [polizaFile, setPolizaFile] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Vehiculo | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     getClientes().then((result) => {
@@ -28,42 +39,99 @@ export function GestionVehiculosPage() {
     })
   }, [])
 
-  useEffect(() => {
+  const loadVehiculos = (silent = false) => {
     if (!selectedClienteId) {
       setVehiculos([])
       return
     }
-    setIsLoadingVehiculos(true)
+    if (!silent) setIsLoadingVehiculos(true)
     getByCliente(selectedClienteId).then((result) => {
       setVehiculos(result)
       setIsLoadingVehiculos(false)
     })
-  }, [selectedClienteId])
+  }
+
+  useEffect(loadVehiculos, [selectedClienteId])
+
+  useLiveRefresh(['vehiculo_created', 'vehiculo_updated'], () => loadVehiculos(true))
 
   const openNew = () => {
+    setEditingId(null)
     setFormData(emptyForm)
+    setCreateMode('manual')
+    setPolizaFile(null)
+    setModalOpen(true)
+  }
+
+  const openEdit = (vehiculo: Vehiculo) => {
+    setEditingId(vehiculo.id)
+    setFormData({
+      marca: vehiculo.marca,
+      modelo: vehiculo.modelo,
+      anio: String(vehiculo.anio),
+      placas: vehiculo.placas,
+      vin: vehiculo.vin,
+      color: vehiculo.color,
+    })
+    setCreateMode('manual')
     setModalOpen(true)
   }
 
   const handleSubmit = async () => {
+    if (!editingId && createMode === 'poliza' && !polizaFile) {
+      addToast('error', 'Selecciona el PDF de la póliza')
+      return
+    }
     setIsSubmitting(true)
     try {
-      const nuevo = await createVehiculo(selectedClienteId, {
-        marca: formData.marca,
-        modelo: formData.modelo,
-        anio: Number(formData.anio),
-        placas: formData.placas,
-        vin: formData.vin,
-        color: formData.color,
-      })
-      setVehiculos((prev) => [...prev, nuevo])
-      addToast('success', 'Vehículo agregado correctamente')
+      if (editingId) {
+        const actualizado = await updateVehiculo(editingId, {
+          marca: formData.marca,
+          modelo: formData.modelo,
+          anio: Number(formData.anio),
+          placas: formData.placas,
+          vin: formData.vin,
+          color: formData.color,
+        })
+        setVehiculos((prev) => prev.map((v) => (v.id === editingId ? actualizado : v)))
+        addToast('success', 'Vehículo actualizado correctamente')
+      } else {
+        const nuevo = createMode === 'poliza' && polizaFile
+          ? await createFromPoliza(selectedClienteId, polizaFile)
+          : await createVehiculo(selectedClienteId, {
+              marca: formData.marca,
+              modelo: formData.modelo,
+              anio: Number(formData.anio),
+              placas: formData.placas,
+              vin: formData.vin,
+              color: formData.color,
+            })
+        setVehiculos((prev) => [...prev, nuevo])
+        addToast('success', 'Vehículo agregado correctamente')
+      }
       setModalOpen(false)
       setFormData(emptyForm)
-    } catch {
-      addToast('error', 'Error al agregar el vehículo')
+      setPolizaFile(null)
+      setEditingId(null)
+    } catch (err) {
+      addToast('error', getErrorMessage(err, editingId ? 'Error al actualizar el vehículo' : 'Error al agregar el vehículo'))
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return
+    setIsDeleting(true)
+    try {
+      await removeVehiculo(deleteTarget.id)
+      setVehiculos((prev) => prev.filter((v) => v.id !== deleteTarget.id))
+      addToast('success', 'Vehículo eliminado correctamente')
+      setDeleteTarget(null)
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al eliminar el vehículo'))
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -103,7 +171,12 @@ export function GestionVehiculosPage() {
       {selectedClienteId && !isLoadingVehiculos && (
         <div className="flex flex-col gap-3 max-w-xl">
           {vehiculos.map((vehiculo) => (
-            <VehiculoCard key={vehiculo.id} vehiculo={vehiculo} />
+            <VehiculoCard
+              key={vehiculo.id}
+              vehiculo={vehiculo}
+              onEdit={() => openEdit(vehiculo)}
+              onDelete={() => setDeleteTarget(vehiculo)}
+            />
           ))}
 
           <button
@@ -121,14 +194,60 @@ export function GestionVehiculosPage() {
 
       <CrudModal
         open={modalOpen}
-        title={`Nuevo vehículo${selectedCliente ? ` · ${selectedCliente.nombre}` : ''}`}
-        onClose={() => { setModalOpen(false); setFormData(emptyForm) }}
+        title={editingId ? 'Editar vehículo' : `Nuevo vehículo${selectedCliente ? ` · ${selectedCliente.nombre}` : ''}`}
+        onClose={() => { setModalOpen(false); setFormData(emptyForm); setPolizaFile(null); setEditingId(null) }}
         onSubmit={handleSubmit}
         submitLabel="Guardar"
         isSubmitting={isSubmitting}
       >
-        <VehiculoForm data={formData} onChange={setFormData} />
+        {!editingId && (
+          <div className="flex gap-2 mb-2">
+            <button
+              type="button"
+              onClick={() => setCreateMode('manual')}
+              className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${createMode === 'manual' ? 'bg-primary-800 text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'}`}
+            >
+              Manual
+            </button>
+            <button
+              type="button"
+              onClick={() => setCreateMode('poliza')}
+              className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${createMode === 'poliza' ? 'bg-primary-800 text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'}`}
+            >
+              Desde póliza (PDF)
+            </button>
+          </div>
+        )}
+
+        {editingId || createMode === 'manual' ? (
+          <VehiculoForm data={formData} onChange={setFormData} />
+        ) : (
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="v-poliza-file" required>Póliza (PDF)</Label>
+            <input
+              id="v-poliza-file"
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => setPolizaFile(e.target.files?.[0] ?? null)}
+              className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 file:mr-3 file:rounded-md file:border-0 file:bg-primary-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-700 hover:file:bg-primary-100"
+            />
+            <p className="text-xs text-neutral-500 mt-1">
+              Se extraen marca, modelo, año, placas, VIN y color automáticamente del documento.
+            </p>
+          </div>
+        )}
       </CrudModal>
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Eliminar vehículo"
+        message={`¿Estás seguro de que deseas eliminar el vehículo ${deleteTarget?.marca} ${deleteTarget?.modelo} (${deleteTarget?.placas})? Esta acción no se puede deshacer.`}
+        confirmLabel="Eliminar"
+        variant="danger"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setDeleteTarget(null)}
+        isConfirming={isDeleting}
+      />
     </div>
   )
 }

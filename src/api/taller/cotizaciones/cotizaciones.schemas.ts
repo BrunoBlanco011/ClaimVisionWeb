@@ -15,14 +15,6 @@ export interface CotizacionV1DTO {
   updated_at: string
 }
 
-export interface CrearCotizacionRequest {
-  monto_mano_obra: number
-  monto_refacciones: number
-  monto_total?: number
-  desglose_pdf_url: string
-  observaciones_tecnicas?: string
-}
-
 export interface EditarCotizacionRequest {
   monto_mano_obra?: number
   monto_refacciones?: number
@@ -55,4 +47,17 @@ export interface VehicleData {
   year: string
   plate: string
   expediente: string
+}
+
+export interface PresupuestoEnviado {
+  id: string
+  siniestroId: string
+  numero: string
+  vehiculo: string
+  placa: string
+  monto: number
+  estatus: string
+  siniestroEstatus: string
+  fechaEnvio: string
+  pdfUrl: string
 }

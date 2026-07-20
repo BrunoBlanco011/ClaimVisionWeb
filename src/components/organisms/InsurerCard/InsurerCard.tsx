@@ -10,6 +10,7 @@ export interface InsurerCardProps {
   talleres: number
   plan: PlanTier
   onAdminClick?: () => void
+  actionLabel?: string
   className?: string
 }
 
@@ -49,6 +50,7 @@ export function InsurerCard({
   talleres,
   plan,
   onAdminClick,
+  actionLabel = 'Administrar',
   className = '',
 }: InsurerCardProps) {
   const isActive = estatus === 'Activa'
@@ -97,7 +99,7 @@ export function InsurerCard({
           onClick={onAdminClick}
           className="text-sm font-medium text-admin-500 hover:text-admin-600 transition-colors"
         >
-          Administrar
+          {actionLabel}
         </button>
       </div>
     </div>

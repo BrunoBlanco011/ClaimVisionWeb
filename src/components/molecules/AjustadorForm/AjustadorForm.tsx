@@ -38,20 +38,8 @@ export function AjustadorForm({ data, onChange, isEditing = false }: AjustadorFo
       </div>
 
       <div className="flex flex-col gap-1">
-        <Label htmlFor="aj-especialidad" required>Especialidad</Label>
-        <select
-          id="aj-especialidad"
-          value={data.especialidad}
-          onChange={set('especialidad')}
-          className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-600"
-        >
-          <option value="">Seleccionar…</option>
-          <option value="Colisiones">Colisiones</option>
-          <option value="Daños múltiples">Daños múltiples</option>
-          <option value="Incendios">Incendios</option>
-          <option value="Robos">Robos</option>
-          <option value="Granizo">Granizo</option>
-        </select>
+        <Label htmlFor="aj-especialidad" required>Cédula profesional</Label>
+        <Input id="aj-especialidad" value={data.especialidad} onChange={set('especialidad')} placeholder="Ej: 12345678" />
       </div>
 
       {!isEditing && (

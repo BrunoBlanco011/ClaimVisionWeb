@@ -3,7 +3,9 @@ import { Input } from '../../components/atoms/Input'
 import { Label } from '../../components/atoms/Label'
 import { useAuth } from '../../contexts/useAuth'
 import { useToast } from '../../contexts/Toast'
+import { getErrorMessage } from '../../api/errors'
 import { getPerfil, updatePerfil } from '../../api/aseguradora/perfil/perfil.routes'
+import { ChangePasswordForm } from '../../components/molecules/ChangePasswordForm'
 import type { PerfilAseguradora } from '../../api/aseguradora/perfil/perfil.schemas'
 
 interface NotificacionesConfig {
@@ -68,8 +70,8 @@ export function ConfiguracionPage() {
       setPerfil(nuevoPerfil)
       localStorage.setItem(STORAGE_KEY, JSON.stringify(notificaciones))
       addToast('success', 'Configuración guardada correctamente')
-    } catch {
-      addToast('error', 'Error al guardar la configuración')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al guardar la configuración'))
     } finally {
       setSaving(false)
     }
@@ -151,11 +153,13 @@ export function ConfiguracionPage() {
           type="button"
           disabled={saving}
           onClick={handleSave}
-          className="px-6 py-2.5 bg-primary-800 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+          className="px-6 py-2.5 bg-amber-500 text-amber-dark text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50"
         >
           {saving ? 'Guardando…' : 'Guardar Configuración'}
         </button>
       </div>
+
+      <ChangePasswordForm />
     </div>
   )
 }

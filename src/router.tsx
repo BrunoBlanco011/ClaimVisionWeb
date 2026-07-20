@@ -5,6 +5,7 @@ import { AppLayout } from './components/templates/AppLayout'
 import { AuthGuard, GuestGuard } from './components/organisms/AuthGuard'
 import { BandejaExpedientesPage } from './pages/taller/BandejaExpedientesPage'
 import { ElaboracionPresupuestoPage } from './pages/taller/ElaboracionPresupuestoPage'
+import { PresupuestosEnviadosPage } from './pages/taller/PresupuestosEnviadosPage'
 
 import { HistoricoTrabajosPage } from './pages/taller/HistoricoTrabajosPage'
 import { DetalleHistoricoPage } from './pages/taller/DetalleHistoricoPage'
@@ -72,7 +73,7 @@ export const router = createBrowserRouter([
           { path: 'bandeja', element: <BandejaExpedientesPage /> },
           { path: 'presupuesto', element: <ElaboracionPresupuestoPage /> },
           { path: 'presupuesto/:id', element: <ElaboracionPresupuestoPage /> },
-          { path: 'presupuesto-enviado', element: <BandejaExpedientesPage /> },
+          { path: 'presupuesto-enviado', element: <PresupuestosEnviadosPage /> },
 
           { path: 'historico', element: <HistoricoTrabajosPage /> },
           { path: 'historico/:id', element: <DetalleHistoricoPage /> },

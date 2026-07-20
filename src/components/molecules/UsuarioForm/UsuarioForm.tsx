@@ -5,8 +5,6 @@ export interface UsuarioFormData {
   rol: string
   aseguradora: string
   contrasenaTemporal: string
-  enviarInvitacion: boolean
-  huellaVinculada: boolean
 }
 
 export interface UsuarioFormProps {
@@ -141,32 +139,6 @@ export function UsuarioForm({ data, onChange, aseguradoras = [], isEditing = fal
           </button>
         </div>
       </div>
-
-      <label className="flex items-center gap-3 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={data.enviarInvitacion}
-          onChange={(e) => set('enviarInvitacion', e.target.checked)}
-          className="w-4 h-4 rounded border-neutral-300 text-admin-500"
-        />
-        <div>
-          <span className="text-sm text-neutral-700">Enviar invitación por correo</span>
-          <p className="text-xs text-neutral-400">El usuario define su contraseña en el primer acceso</p>
-        </div>
-      </label>
-
-      <label className="flex items-center gap-3 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={data.huellaVinculada}
-          onChange={(e) => set('huellaVinculada', e.target.checked)}
-          className="w-4 h-4 rounded border-neutral-300 text-admin-500"
-        />
-        <div>
-          <span className="text-sm text-neutral-700">huella_vinculada</span>
-          <p className="text-xs text-neutral-400">Se vincula desde el dispositivo del usuario</p>
-        </div>
-      </label>
     </div>
   )
 }

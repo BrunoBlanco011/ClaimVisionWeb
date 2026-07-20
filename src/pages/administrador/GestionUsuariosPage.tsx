@@ -7,6 +7,8 @@ import { UsuarioForm, type UsuarioFormData } from '../../components/molecules/Us
 import { getAll as getUsuarios, create as createUsuario, update as updateUsuario, remove as removeUsuario, bloqueoArco } from '../../api/admin/usuarios/usuarios.routes'
 import { getAll as getAseguradoras, crearOperador as crearOperadorAseguradora } from '../../api/admin/aseguradoras/aseguradoras.routes'
 import { useToast } from '../../contexts/Toast'
+import { getErrorMessage } from '../../api/errors'
+import { useLiveRefresh } from '../../contexts/EventStream'
 import type { Usuario } from '../../api/admin/usuarios/usuarios.schemas'
 
 const ROLES = ['Todos los roles', 'Administrador_Global', 'Operador_Aseguradora', 'Ajustador', 'Operador_Taller', 'Cliente'] as const
@@ -19,8 +21,6 @@ const INITIAL_FORM: UsuarioFormData = {
   rol: '',
   aseguradora: '',
   contrasenaTemporal: '',
-  enviarInvitacion: true,
-  huellaVinculada: false,
 }
 
 export function GestionUsuariosPage() {
@@ -41,17 +41,24 @@ export function GestionUsuariosPage() {
   const [isProcessingArco, setIsProcessingArco] = useState(false)
 
   useEffect(() => {
-    Promise.all([getUsuarios(), getAseguradoras()]).then(([usuarios, aseg]) => {
-      setData(usuarios)
-      setAseguradoras(aseg.items.map((a) => ({ id: a.id, nombre: a.nombre })))
-      setIsLoading(false)
-    })
-  }, [])
+    Promise.all([getUsuarios(), getAseguradoras()])
+      .then(([usuarios, aseg]) => {
+        setData(usuarios)
+        setAseguradoras(aseg.items.map((a) => ({ id: a.id, nombre: a.nombre })))
+        setIsLoading(false)
+      })
+      .catch((err) => {
+        addToast('error', getErrorMessage(err, 'Error al cargar los usuarios'))
+        setIsLoading(false)
+      })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
     const usuarios = await getUsuarios()
     setData(usuarios)
   }
+
+  useLiveRefresh(['cliente_created', 'cliente_updated', 'ajustador_created', 'ajustador_updated'], loadData)
 
   const aseguradoraNombre = (id: string | null) => aseguradoras.find((a) => a.id === id)?.nombre ?? '—'
 
@@ -70,8 +77,6 @@ export function GestionUsuariosPage() {
       rol: item.rol,
       aseguradora: item.aseguradoraId ?? '',
       contrasenaTemporal: '',
-      enviarInvitacion: true,
-      huellaVinculada: false,
     })
     setModalOpen(true)
   }
@@ -111,8 +116,8 @@ export function GestionUsuariosPage() {
       setModalOpen(false)
       setFormData(INITIAL_FORM)
       setEditingId(null)
-    } catch {
-      addToast('error', 'Error al guardar el usuario')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al guardar el usuario'))
     } finally {
       setIsSubmitting(false)
     }
@@ -126,8 +131,8 @@ export function GestionUsuariosPage() {
       await loadData()
       addToast('success', 'Usuario eliminado correctamente')
       setDeleteId(null)
-    } catch {
-      addToast('error', 'Error al eliminar el usuario')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al eliminar el usuario'))
     } finally {
       setIsDeleting(false)
     }
@@ -141,8 +146,8 @@ export function GestionUsuariosPage() {
       await loadData()
       addToast('success', 'Bloqueo ARCO aplicado correctamente')
       setArcoTarget(null)
-    } catch {
-      addToast('error', 'Error al aplicar bloqueo ARCO')
+    } catch (err) {
+      addToast('error', getErrorMessage(err, 'Error al aplicar bloqueo ARCO'))
     } finally {
       setIsProcessingArco(false)
     }

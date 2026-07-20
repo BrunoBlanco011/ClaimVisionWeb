@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { getAll as getIncidentes } from '../../api/aseguradora/siniestros/siniestros.routes'
 import { getPerfil } from '../../api/aseguradora/perfil/perfil.routes'
+import { CountUp } from '../../components/atoms/CountUp'
+import { useLiveRefresh } from '../../contexts/EventStream'
 import type { Incidente } from '../../api/aseguradora/siniestros/siniestros.schemas'
 import type { PerfilAseguradora } from '../../api/aseguradora/perfil/perfil.schemas'
 
@@ -21,13 +23,17 @@ export function TableroGeneralPage() {
   const [perfil, setPerfil] = useState<PerfilAseguradora | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
+  const load = () => {
     Promise.all([getIncidentes(), getPerfil()]).then(([inc, p]) => {
       setIncidentes(inc)
       setPerfil(p)
       setIsLoading(false)
     })
-  }, [])
+  }
+
+  useEffect(load, [])
+
+  useLiveRefresh(['siniestro_created', 'siniestro_updated'], load)
 
   const activos = incidentes.filter((i) => i.estado === 'en_progreso' || i.estado === 'pendiente' || i.estado === 'aprobado').length
   const pendientes = incidentes.filter((i) => i.estado === 'pendiente').length
@@ -67,10 +73,10 @@ export function TableroGeneralPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard label="Siniestros Activos" value={String(activos)} color="primary" />
-        <KpiCard label="Pendientes" value={String(pendientes)} color="warning" />
-        <KpiCard label="Completados" value={String(completados)} color="success" />
-        <KpiCard label="Peritajes Pendientes" value={String(peritajesPendientes)} color="neutral" />
+        <KpiCard label="Siniestros Activos" value={activos} color="primary" delayMs={0} />
+        <KpiCard label="Pendientes" value={pendientes} color="warning" delayMs={60} />
+        <KpiCard label="Completados" value={completados} color="success" delayMs={120} />
+        <KpiCard label="Peritajes Pendientes" value={peritajesPendientes} color="neutral" delayMs={180} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -154,7 +160,7 @@ export function TableroGeneralPage() {
   )
 }
 
-function KpiCard({ label, value, color }: { label: string; value: string; color: 'primary' | 'warning' | 'success' | 'neutral' }) {
+function KpiCard({ label, value, color, delayMs = 0 }: { label: string; value: number; color: 'primary' | 'warning' | 'success' | 'neutral'; delayMs?: number }) {
   const colorMap = {
     primary: { bg: 'bg-primary-50', text: 'text-primary-700', dot: 'bg-primary-500' },
     warning: { bg: 'bg-warning-50', text: 'text-warning-600', dot: 'bg-warning-500' },
@@ -165,12 +171,12 @@ function KpiCard({ label, value, color }: { label: string; value: string; color:
   const c = colorMap[color]
 
   return (
-    <div className={`${c.bg} rounded-xl border border-neutral-200 p-5`}>
+    <div className={`${c.bg} rounded-xl border border-neutral-200 p-5 animate-fade-up`} style={{ animationDelay: `${delayMs}ms` }}>
       <div className="flex items-center gap-2 mb-2">
         <div className={`w-2.5 h-2.5 rounded-full ${c.dot}`} aria-hidden="true" />
         <span className={`text-xs font-medium ${c.text}`}>{label}</span>
       </div>
-      <p className="text-3xl font-bold text-neutral-900">{value}</p>
+      <p className="text-3xl font-bold text-neutral-900"><CountUp value={value} /></p>
     </div>
   )
 }

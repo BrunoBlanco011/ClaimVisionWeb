@@ -1,4 +1,4 @@
-import { useState, useId, type InputHTMLAttributes } from 'react'
+import { useState, useId, type InputHTMLAttributes, type ReactNode } from 'react'
 import { Label } from '../../atoms/Label'
 import { Input } from '../../atoms/Input'
 import { ErrorMessage } from '../../atoms/ErrorMessage'
@@ -8,6 +8,7 @@ export interface FormFieldProps {
   required?: boolean
   error?: string
   type?: 'text' | 'email' | 'password'
+  icon?: ReactNode
   inputProps?: Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'id' | 'aria-describedby' | 'aria-invalid'>
 }
 
@@ -16,6 +17,7 @@ export function FormField({
   required = false,
   error,
   type = 'text',
+  icon,
   inputProps = {},
 }: FormFieldProps) {
   const generatedId = useId()
@@ -32,13 +34,19 @@ export function FormField({
       </Label>
 
       <div className="relative">
+        {icon && (
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-400">
+            {icon}
+          </span>
+        )}
+
         <Input
           id={generatedId}
           type={resolvedType}
           hasError={!!error}
           aria-invalid={!!error}
           aria-describedby={error ? errorId : undefined}
-          className={isPassword ? 'pr-10' : ''}
+          className={[icon ? 'pl-10' : '', isPassword ? 'pr-10' : ''].filter(Boolean).join(' ')}
           {...inputProps}
         />
 
