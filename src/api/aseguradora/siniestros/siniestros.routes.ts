@@ -7,6 +7,7 @@ import type {
   Incidente,
   IncidenteDetalle,
   Peritaje,
+  CotizacionDetalle,
   SiniestroResponseDTO,
   SiniestroDetalleAseguradoraDTO,
   SiniestroUpdateDTO,
@@ -52,6 +53,20 @@ function siniestroDetalleBackendToFrontend(dto: SiniestroDetalleAseguradoraDTO):
     }
   }
 
+  let cotizacion: CotizacionDetalle | null = null
+  if (dto.cotizacion) {
+    cotizacion = {
+      id: dto.cotizacion.id,
+      estatus: dto.cotizacion.estatus,
+      montoManoObra: dto.cotizacion.monto_mano_obra,
+      montoRefacciones: dto.cotizacion.monto_refacciones,
+      montoTotal: dto.cotizacion.monto_total,
+      pdfUrl: dto.cotizacion.desglose_pdf_url,
+      observacionesTecnicas: dto.cotizacion.observaciones_tecnicas,
+      fechaEnvio: new Date(dto.cotizacion.created_at).toLocaleDateString('es-MX'),
+    }
+  }
+
   return {
     id: dto.id,
     numero: dto.id.slice(0, 8).toUpperCase(),
@@ -76,6 +91,7 @@ function siniestroDetalleBackendToFrontend(dto: SiniestroDetalleAseguradoraDTO):
     peritaje,
     cotizacionId: dto.cotizacion?.id ?? null,
     cotizacionEstatus: dto.cotizacion?.estatus ?? null,
+    cotizacion,
   }
 }
 

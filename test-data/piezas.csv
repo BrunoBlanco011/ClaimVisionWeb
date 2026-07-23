@@ -1,0 +1,43 @@
+codigo,descripcion,precio_unitario
+DEF-1001,Defensa delantera,1850.00
+DEF-1002,Defensa trasera,1950.00
+DEF-1003,Soporte de defensa delantero izquierdo,320.00
+DEF-1004,Soporte de defensa delantero derecho,320.00
+FAR-2001,Faro delantero izquierdo,1450.00
+FAR-2002,Faro delantero derecho,1450.00
+CAL-2003,Calavera trasera izquierda,780.00
+CAL-2004,Calavera trasera derecha,780.00
+COF-3001,Cofre (capó),4200.00
+CAJ-3002,Tapa de cajuela,3800.00
+PRT-4001,Puerta delantera izquierda,5600.00
+PRT-4002,Puerta delantera derecha,5600.00
+PRT-4003,Puerta trasera izquierda,5200.00
+PRT-4004,Puerta trasera derecha,5200.00
+SAL-5001,Salpicadera delantera izquierda,1650.00
+SAL-5002,Salpicadera delantera derecha,1650.00
+SAL-5003,Salpicadera trasera izquierda,1750.00
+SAL-5004,Salpicadera trasera derecha,1750.00
+ESP-6001,Espejo lateral izquierdo,650.00
+ESP-6002,Espejo lateral derecho,650.00
+PAR-7001,Parrilla frontal,980.00
+MOL-7002,Moldura de puerta delantera izquierda,280.00
+MOL-7003,Moldura de puerta delantera derecha,280.00
+MOL-7004,Moldura de cofre,340.00
+MAN-8001,Manija exterior puerta delantera izquierda,380.00
+MAN-8002,Manija exterior puerta delantera derecha,380.00
+CRI-9001,Parabrisas delantero,3200.00
+CRI-9002,Luneta trasera,2600.00
+CRI-9003,Cristal ventana delantera izquierda,950.00
+CRI-9004,Cristal ventana delantera derecha,950.00
+RIN-1101,Rin de aleación 16 pulgadas,2100.00
+TAP-1102,Tapón de rin,150.00
+ANT-1201,Antena,220.00
+MAR-1301,Marco de placa delantero,120.00
+MAR-1302,Marco de placa trasero,120.00
+FAL-1401,Faldón delantero,890.00
+FAL-1402,Faldón trasero,890.00
+EMB-1501,Emblema delantero,180.00
+EMB-1502,Emblema trasero,180.00
+BIS-1601,Bisagra de puerta delantera izquierda,260.00
+BIS-1602,Bisagra de puerta delantera derecha,260.00
+AMO-1701,Amortiguador de cofre,410.00

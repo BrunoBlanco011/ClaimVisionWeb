@@ -126,6 +126,17 @@ export interface Peritaje {
   estado: PeritajeEstado
 }
 
+export interface CotizacionDetalle {
+  id: string
+  estatus: string
+  montoManoObra: number
+  montoRefacciones: number
+  montoTotal: number
+  pdfUrl: string
+  observacionesTecnicas: string | null
+  fechaEnvio: string
+}
+
 export interface IncidenteDetalle {
   id: string
   numero: string
@@ -145,4 +156,5 @@ export interface IncidenteDetalle {
   peritaje: Peritaje | null
   cotizacionId: string | null
   cotizacionEstatus: string | null
+  cotizacion: CotizacionDetalle | null
 }

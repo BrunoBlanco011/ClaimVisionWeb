@@ -264,28 +264,51 @@ export function DetalleIncidentePage() {
             </section>
           )}
 
-          {incidente.cotizacionId && incidente.cotizacionEstatus === 'Pendiente_Aprobacion' && (
+          {incidente.cotizacion && (
             <section className="bg-white rounded-xl border border-neutral-200 p-6">
               <h2 className="text-lg font-semibold text-neutral-900 mb-4">Cotización del Taller</h2>
-              <p className="text-sm text-neutral-500 mb-4">La cotización enviada por el taller está pendiente de aprobación.</p>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  disabled={processingCotizacion}
-                  onClick={handleAprobarCotizacion}
-                  className="px-4 py-2 bg-success-600 text-white text-sm font-medium rounded-md hover:bg-success-700 transition-colors disabled:opacity-50"
-                >
-                  {processingCotizacion ? 'Procesando…' : 'Aprobar Cotización'}
-                </button>
-                <button
-                  type="button"
-                  disabled={processingCotizacion}
-                  onClick={() => setConfirmingRechazo(true)}
-                  className="px-4 py-2 bg-error-600 text-white text-sm font-medium rounded-md hover:bg-error-700 transition-colors disabled:opacity-50"
-                >
-                  {processingCotizacion ? 'Procesando…' : 'Rechazar Cotización'}
-                </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <Field label="Mano de obra" value={formatCurrency(incidente.cotizacion.montoManoObra)} />
+                <Field label="Refacciones" value={formatCurrency(incidente.cotizacion.montoRefacciones)} />
+                <Field label="Monto total" value={<span className="font-semibold text-lg text-neutral-900">{formatCurrency(incidente.cotizacion.montoTotal)}</span>} />
+                <Field label="Fecha de envío" value={incidente.cotizacion.fechaEnvio} />
               </div>
+              {incidente.cotizacion.observacionesTecnicas && (
+                <div className="flex flex-col gap-1 mb-4">
+                  <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Observaciones técnicas</span>
+                  <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-line">{incidente.cotizacion.observacionesTecnicas}</p>
+                </div>
+              )}
+              {incidente.cotizacion.pdfUrl && (
+                <a
+                  href={incidente.cotizacion.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-primary-700 hover:text-primary-600 underline mb-4"
+                >
+                  Ver desglose en PDF
+                </a>
+              )}
+              {incidente.cotizacionEstatus === 'Pendiente_Aprobacion' && (
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    disabled={processingCotizacion}
+                    onClick={handleAprobarCotizacion}
+                    className="px-4 py-2 bg-success-600 text-white text-sm font-medium rounded-md hover:bg-success-700 transition-colors disabled:opacity-50"
+                  >
+                    {processingCotizacion ? 'Procesando…' : 'Aprobar Cotización'}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={processingCotizacion}
+                    onClick={() => setConfirmingRechazo(true)}
+                    className="px-4 py-2 bg-error-600 text-white text-sm font-medium rounded-md hover:bg-error-700 transition-colors disabled:opacity-50"
+                  >
+                    {processingCotizacion ? 'Procesando…' : 'Rechazar Cotización'}
+                  </button>
+                </div>
+              )}
             </section>
           )}
 
