@@ -1,16 +1,16 @@
 # Graph Report - claimvision  (2026-07-22)
 
 ## Corpus Check
-- 170 files · ~44,547 words
+- 174 files · ~45,871 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 989 nodes · 1797 edges · 199 communities (46 shown, 153 thin omitted)
+- 1010 nodes · 1841 edges · 200 communities (45 shown, 155 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 6 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3e00dbf8`
+- Built from commit: `bcea57f3`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -207,14 +207,15 @@
 - UpdateSuscripcionDTO
 - UsuarioRequestDTO
 - UsuarioResponseDTO
+- index.ts
 
 ## God Nodes (most connected - your core abstractions)
-1. `react` - 51 edges
+1. `react` - 52 edges
 2. `getErrorMessage()` - 38 edges
 3. `useLiveRefresh()` - 29 edges
-4. `useToast()` - 28 edges
+4. `useToast()` - 29 edges
 5. `StatusVariant` - 20 edges
-6. `api` - 17 edges
+6. `api` - 18 edges
 7. `compilerOptions` - 17 edges
 8. `useAuth()` - 15 edges
 9. `compilerOptions` - 15 edges
@@ -227,35 +228,31 @@
   src/pages/taller/ElaboracionPresupuestoPage.tsx → package.json
 - `Presupuesto` --references--> `StatusVariant`  [EXTRACTED]
   src/api/taller/cotizaciones/cotizaciones.schemas.ts → src/api/shared/status.ts
+- `LiveStatusIndicator()` --calls--> `useEventStream()`  [EXTRACTED]
+  src/components/organisms/TopBar/TopBar.tsx → src/contexts/EventStream/useEventStream.ts
 - `PanelGlobalPage()` --calls--> `getResumen()`  [EXTRACTED]
   src/pages/administrador/PanelGlobalPage.tsx → src/api/admin/dashboard/dashboard.routes.ts
-- `GestionUsuariosPage()` --calls--> `bloqueoArco()`  [EXTRACTED]
-  src/pages/administrador/GestionUsuariosPage.tsx → src/api/admin/usuarios/usuarios.routes.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (199 total, 153 thin omitted)
+## Communities (200 total, 155 thin omitted)
 
 ### Community 0 - "App Bootstrap and Auth Routes"
-Cohesion: 0.11
-Nodes (23): react, App(), icons, styles, Toast(), ToastData, ToastType, liveStatusConfig (+15 more)
+Cohesion: 0.19
+Nodes (10): App(), icons, styles, Toast(), ToastData, ToastType, ToastContext, ToastContextValue (+2 more)
 
 ### Community 1 - "Siniestros Claims Domain"
-Cohesion: 0.14
-Nodes (21): aprobarCotizacion(), assignAjustador(), assignTaller(), autorizarEntrega(), getById(), mockIncidentes, rechazarCotizacion(), siniestroDetalleBackendToFrontend() (+13 more)
+Cohesion: 0.12
+Nodes (24): delay(), getAll(), getById(), mockIncidentes, siniestroBackendToFrontend(), siniestroDetalleBackendToFrontend(), AsignarAjustadorDTO, CotizacionDetalle (+16 more)
 
 ### Community 2 - "Admin Dashboard and Perfil"
 Cohesion: 0.21
 Nodes (13): getPerfil(), perfilBackendToFrontend(), updatePerfil(), PerfilAseguradora, PerfilAseguradoraDTO, PerfilAseguradoraUpdateDTO, Incidente, ConfiguracionPage() (+5 more)
 
-### Community 3 - "Branding and Sidebar Components"
-Cohesion: 0.10
-Nodes (4): NavItem, navItems, Sidebar(), SidebarProps
-
 ### Community 4 - "Form Input Atoms"
-Cohesion: 0.08
-Nodes (33): changePassword(), getPerfil(), perfilBackendToFrontend(), updatePerfil(), TallerPerfil, TallerPerfilResponseDTO, TallerPerfilUpdateRequestDTO, Input() (+25 more)
+Cohesion: 0.07
+Nodes (37): changePassword(), getPerfil(), perfilBackendToFrontend(), updatePerfil(), TallerPerfil, TallerPerfilResponseDTO, TallerPerfilUpdateRequestDTO, Input() (+29 more)
 
 ### Community 5 - "Aseguradoras Admin API"
 Cohesion: 0.08
@@ -266,8 +263,8 @@ Cohesion: 0.05
 Nodes (43): autoprefixer, motion, oxlint, dependencies, motion, react, react-dom, react-router-dom (+35 more)
 
 ### Community 7 - "Talleres API (Aseguradora)"
-Cohesion: 0.18
-Nodes (18): create(), createOperador(), delay(), getAll(), mockData, remove(), tallerBackendToFrontend(), update() (+10 more)
+Cohesion: 0.24
+Nodes (13): create(), delay(), getAll(), mockData, remove(), tallerBackendToFrontend(), update(), OperadorTallerRequestDTO (+5 more)
 
 ### Community 8 - "DTOs and Conexion Plan Phases"
 Cohesion: 0.10
@@ -278,20 +275,20 @@ Cohesion: 0.09
 Nodes (21): 0. Hallazgo crítico #1 — Falta el prefijo `/v1` en TODAS las llamadas, 1. Hallazgo crítico #2 — El CRUD de Aseguradora vive bajo `/aseguradora/crud`, no `/aseguradora`, 2. Hallazgo crítico #3 — Formato del envelope de paginación, 3.10 `auth.service.ts`, 3.1 `talleres.service.ts`, 3.2 `ajustadores.service.ts`, 3.3 `siniestros.service.ts`, 3.4 `expedientes.service.ts` (módulo Taller) (+13 more)
 
 ### Community 11 - "Cotizaciones and Taller Perfil API"
-Cohesion: 0.26
-Nodes (9): MessageResponseDTO, create(), CreatePresupuestoData, delay(), EditarCotizacionRequest, Part, Presupuesto, PresupuestoEnviado (+1 more)
+Cohesion: 0.16
+Nodes (15): jspdf, jspdf, MessageResponseDTO, create(), CreatePresupuestoData, delay(), EditarCotizacionRequest, Part (+7 more)
 
 ### Community 12 - "Auditoria API and Action Badges"
 Cohesion: 0.10
 Nodes (35): ACCION_BUCKETS, classifyAccion(), eventoAuditoriaBackendToFrontend(), exportCsv(), filtrosToQuery(), getAll(), getDetalle(), getResumen() (+27 more)
 
 ### Community 13 - "Clientes and Vehiculos API"
-Cohesion: 0.11
-Nodes (28): clienteBackendToFrontend(), create(), getAll(), getById(), Cliente, ClienteCreateDTO, ClienteResponseDTO, create() (+20 more)
+Cohesion: 0.07
+Nodes (44): getAll(), getById(), tallerAdminBackendToFrontend(), TallerAdmin, TallerAdminResponseDTO, clienteBackendToFrontend(), create(), documentoBackendToFrontend() (+36 more)
 
 ### Community 14 - "Usuarios Admin API"
-Cohesion: 0.15
-Nodes (20): bloqueoArco(), create(), getAll(), ListarUsuariosFiltros, remove(), update(), usuarioBackendToFrontend(), CreateUsuarioRequestDTO (+12 more)
+Cohesion: 0.27
+Nodes (10): create(), getAll(), ListarUsuariosFiltros, remove(), update(), usuarioBackendToFrontend(), CreateUsuarioRequestDTO, UpdateUsuarioRequestDTO (+2 more)
 
 ### Community 15 - "Estado Conexion Admin Doc"
 Cohesion: 0.18
@@ -302,8 +299,8 @@ Cohesion: 0.09
 Nodes (22): DOM, src, vite/client, compilerOptions, allowImportingTsExtensions, erasableSyntaxOnly, jsx, lib (+14 more)
 
 ### Community 17 - "Ajustadores API"
-Cohesion: 0.16
-Nodes (17): ajustadorBackendToFrontend(), create(), getAll(), remove(), update(), Ajustador, AjustadorCreateDTO, AjustadorResponseDTO (+9 more)
+Cohesion: 0.31
+Nodes (9): ajustadorBackendToFrontend(), create(), getAll(), remove(), update(), Ajustador, AjustadorCreateDTO, AjustadorResponseDTO (+1 more)
 
 ### Community 18 - "TypeScript Node Config"
 Cohesion: 0.10
@@ -326,12 +323,12 @@ Cohesion: 0.29
 Nodes (7): icons.svg (icon sprite sheet), Bluesky icon (butterfly logo), Discord icon (game controller/mask logo), Documentation icon (document with chat/edit arrows), GitHub icon (Octocat logo), Social icon (person with settings gear), X (Twitter) icon
 
 ### Community 29 - "router.tsx"
-Cohesion: 0.09
-Nodes (43): jspdf, jspdf, getAll(), getById(), tallerAdminBackendToFrontend(), TallerAdmin, TallerAdminResponseDTO, bloqueoArco() (+35 more)
+Cohesion: 0.07
+Nodes (66): react, bloqueoArco(), createOperador(), bloqueoArco(), desbloqueoArco(), fieldLabel(), getErrorMessage(), ValidationDetail (+58 more)
 
 ### Community 30 - "LoginForm.tsx"
-Cohesion: 0.06
-Nodes (31): Button(), ButtonProps, ButtonSize, ButtonVariant, sizeClasses, variantClasses, ErrorMessage(), ErrorMessageProps (+23 more)
+Cohesion: 0.08
+Nodes (24): Button(), ButtonProps, ButtonSize, ButtonVariant, sizeClasses, variantClasses, ErrorMessage(), ErrorMessageProps (+16 more)
 
 ### Community 31 - "Pruebas contra el backend real"
 Cohesion: 0.10
@@ -342,28 +339,28 @@ Cohesion: 0.19
 Nodes (11): getResumen(), DashboardResumenDTO, EstatusCountDTO, SiniestrosPorMesDTO, CountUp(), CountUpProps, StatProgressItem, StatProgressList() (+3 more)
 
 ### Community 33 - "siniestros.schemas.ts"
-Cohesion: 0.19
-Nodes (14): CotizacionDetalle, DanoAjustadoResponseDTO, EnviarTallerDTO, EvidenciaFoto, ImagenSiniestroResponseDTO, Peritaje, PeritajeEstado, PeritajeResponseDTO (+6 more)
+Cohesion: 0.29
+Nodes (9): aprobarCotizacion(), assignAjustador(), assignTaller(), autorizarEntrega(), rechazarCotizacion(), DetalleIncidentePage(), formatCurrency(), peritajeEstadoColor (+1 more)
 
 ### Community 34 - "StatusVariant"
-Cohesion: 0.22
-Nodes (10): StatusVariant, labels, sizeClasses, StatusBadge(), StatusBadgeProps, StatusSize, variantClasses, DetalleHistoricoPage() (+2 more)
+Cohesion: 0.16
+Nodes (10): labels, sizeClasses, StatusBadge(), StatusBadgeProps, StatusSize, variantClasses, Pagination(), PaginationProps (+2 more)
 
 ### Community 35 - "BandejaExpedientesPage.tsx"
-Cohesion: 0.21
-Nodes (8): Expediente, Column, DataTable(), DataTableProps, SortDir, columns, statusOptions, columns
+Cohesion: 0.39
+Nodes (6): ALL_ROLES, CREATABLE_ROLES, generatePassword(), UsuarioForm(), UsuarioFormData, UsuarioFormProps
 
 ### Community 36 - "Fix — Creación de usuarios con perfil vinculado (panel Super Admin)"
 Cohesion: 0.17
 Nodes (11): Cambios, Causa raíz, Fix — Creación de usuarios con perfil vinculado (panel Super Admin), Nota, Pendiente, Pruebas contra el backend real, Resumen, Test A — Crear operador de aseguradora por la ruta correcta (+3 more)
 
 ### Community 37 - "auth.routes.ts"
-Cohesion: 0.27
-Nodes (8): delay(), login(), ROLE_MAP, LoginRequest, LoginResponseDTO, LoginCredentials, LoginPage(), roleRedirect
+Cohesion: 0.18
+Nodes (10): delay(), login(), AuthBrandPanel(), Feature, features, iconProps, LoginCredentials, LoginFormProps (+2 more)
 
 ### Community 38 - "useAuth.ts"
-Cohesion: 0.31
-Nodes (7): getCurrentUser(), LoginResult, AuthContext, AuthProvider(), loadUser(), AuthState, User
+Cohesion: 0.24
+Nodes (10): getCurrentUser(), LoginResult, ROLE_MAP, LoginRequest, LoginResponseDTO, AuthContext, AuthProvider(), loadUser() (+2 more)
 
 ### Community 39 - "Hallazgos"
 Cohesion: 0.20
@@ -378,40 +375,40 @@ Cohesion: 0.25
 Nodes (7): Cambios solicitados (histórico — ya implementados), Endpoint actual (histórico — como estaba antes del cambio), Estado (2026-07-19), Pendiente — v2, Problemas que esto causaba en el frontend (antes del cambio), Referencia, Solicitud de cambios en backend — Auditoría del Sistema
 
 ### Community 42 - "useAuth"
-Cohesion: 0.50
+Cohesion: 0.47
 Nodes (5): AuthGuard(), AuthGuardProps, GuestGuard(), UserRole, useAuth()
 
 ### Community 43 - "ordenes.routes.ts"
-Cohesion: 0.48
-Nodes (6): delay(), expedienteBackendToFrontend(), getAll(), getById(), getDetalleById(), mockData
+Cohesion: 0.20
+Nodes (14): PeritajeResponseDTO, SiniestroDetalleAseguradoraDTO, SiniestroResponseDTO, CotizacionV1DTO, delay(), expedienteBackendToFrontend(), getAll(), getById() (+6 more)
 
 ### Community 44 - "AppLayout.tsx"
-Cohesion: 0.60
-Nodes (4): logout(), UserRole, AppLayout(), AppLayoutProps
+Cohesion: 0.39
+Nodes (6): logout(), Sidebar(), SidebarProps, UserRole, AppLayout(), AppLayoutProps
 
 ### Community 45 - "ConfiguracionPage.tsx"
-Cohesion: 0.50
-Nodes (4): ConfiguracionPage(), defaultNotificaciones, loadNotificaciones(), NotificacionesConfig
+Cohesion: 0.47
+Nodes (4): liveStatusConfig, LiveStatusIndicator(), TopBar(), TopBarProps
 
 ## Knowledge Gaps
-- **409 isolated node(s):** `npx`, `$schema`, `typescript`, `oxc`, `react/rules-of-hooks` (+404 more)
+- **411 isolated node(s):** `npx`, `$schema`, `typescript`, `oxc`, `react/rules-of-hooks` (+406 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **153 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **155 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `App Bootstrap and Auth Routes` to `Siniestros Claims Domain`, `Admin Dashboard and Perfil`, `Branding and Sidebar Components`, `Form Input Atoms`, `Aseguradoras Admin API`, `Talleres API (Aseguradora)`, `Auditoria API and Action Badges`, `Clientes and Vehiculos API`, `Usuarios Admin API`, `Ajustadores API`, `Oxlint Configuration`, `router.tsx`, `LoginForm.tsx`, `PanelGlobalPage.tsx`, `StatusVariant`, `BandejaExpedientesPage.tsx`, `auth.routes.ts`, `useAuth.ts`, `index.ts`, `ConfiguracionPage.tsx`?**
-  _High betweenness centrality (0.142) - this node is a cross-community bridge._
-- **Why does `jspdf` connect `router.tsx` to `Project Dependencies (package.json)`?**
-  _High betweenness centrality (0.056) - this node is a cross-community bridge._
-- **Why does `dependencies` connect `Project Dependencies (package.json)` to `router.tsx`?**
-  _High betweenness centrality (0.055) - this node is a cross-community bridge._
+- **Why does `react` connect `router.tsx` to `App Bootstrap and Auth Routes`, `Admin Dashboard and Perfil`, `Branding and Sidebar Components`, `Form Input Atoms`, `Aseguradoras Admin API`, `Cotizaciones and Taller Perfil API`, `Auditoria API and Action Badges`, `Clientes and Vehiculos API`, `Oxlint Configuration`, `LoginForm.tsx`, `PanelGlobalPage.tsx`, `siniestros.schemas.ts`, `StatusVariant`, `auth.routes.ts`, `useAuth.ts`, `index.ts`, `useAuth`, `ordenes.routes.ts`, `index.ts`?**
+  _High betweenness centrality (0.114) - this node is a cross-community bridge._
+- **Why does `jspdf` connect `Cotizaciones and Taller Perfil API` to `Project Dependencies (package.json)`?**
+  _High betweenness centrality (0.065) - this node is a cross-community bridge._
+- **Why does `dependencies` connect `Project Dependencies (package.json)` to `Cotizaciones and Taller Perfil API`?**
+  _High betweenness centrality (0.059) - this node is a cross-community bridge._
 - **What connects `npx`, `$schema`, `typescript` to the rest of the system?**
-  _409 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `App Bootstrap and Auth Routes` be split into smaller, more focused modules?**
-  _Cohesion score 0.10668563300142248 - nodes in this community are weakly interconnected._
+  _411 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Siniestros Claims Domain` be split into smaller, more focused modules?**
-  _Cohesion score 0.13846153846153847 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.1164021164021164 - nodes in this community are weakly interconnected._
 - **Should `Branding and Sidebar Components` be split into smaller, more focused modules?**
-  _Cohesion score 0.09881422924901186 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.1 - nodes in this community are weakly interconnected._
+- **Should `Form Input Atoms` be split into smaller, more focused modules?**
+  _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._

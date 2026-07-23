@@ -28,3 +28,25 @@ export interface ClienteCreateDTO {
   telefono: string
   password_temporal: string
 }
+
+export interface DocumentoItemDTO {
+  url: string
+  tipo: string
+  subido_en: string
+}
+
+export interface DocumentosClienteResponseDTO {
+  identificacion: DocumentoItemDTO | null
+  poliza: DocumentoItemDTO | null
+}
+
+export interface DocumentoCliente {
+  url: string
+  tipo: string
+  subidoEn: string
+}
+
+export interface DocumentosCliente {
+  identificacion: DocumentoCliente | null
+  poliza: DocumentoCliente | null
+}

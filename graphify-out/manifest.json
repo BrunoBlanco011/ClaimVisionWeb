@@ -85,14 +85,14 @@
     "semantic_hash": "515a6b2f74b1f1386be31af1b637cb75"
   },
   "src/api/aseguradora/clientes/clientes.routes.ts": {
-    "mtime": 1783535400.7783403,
-    "ast_hash": "7e0f2ab009919bf5d1c39c2a150e314a",
-    "semantic_hash": "7e0f2ab009919bf5d1c39c2a150e314a"
+    "mtime": 1784782110.1824358,
+    "ast_hash": "4f0ef56b7e59e73ccca30f72795e0b03",
+    "semantic_hash": ""
   },
   "src/api/aseguradora/clientes/clientes.schemas.ts": {
-    "mtime": 1783535387.3718064,
-    "ast_hash": "9314a2749482480cf858c276ee2d54b1",
-    "semantic_hash": "9314a2749482480cf858c276ee2d54b1"
+    "mtime": 1784782100.9306617,
+    "ast_hash": "46788822fd7aea47e0c68bd711805552",
+    "semantic_hash": ""
   },
   "src/api/aseguradora/perfil/perfil.routes.ts": {
     "mtime": 1783535543.7699025,
@@ -130,8 +130,8 @@
     "semantic_hash": "19733ed872cbd5d255a8e77bcb0f69bf"
   },
   "src/api/aseguradora/vehiculos/vehiculos.routes.ts": {
-    "mtime": 1784407170.749807,
-    "ast_hash": "7574957dd965489687c80b9726c418ac",
+    "mtime": 1784772971.065861,
+    "ast_hash": "af22414d48cd14efb17ea55f1071c0da",
     "semantic_hash": ""
   },
   "src/api/aseguradora/vehiculos/vehiculos.schemas.ts": {
@@ -515,8 +515,8 @@
     "semantic_hash": "813f059eb44a3e4799187993b3e86c0e"
   },
   "src/components/organisms/index.ts": {
-    "mtime": 1784490386.2137082,
-    "ast_hash": "83999cde0f4f20142e6688c4b898356a",
+    "mtime": 1784782096.7339475,
+    "ast_hash": "40b7d4051f06cd0617eeb9ffd75f9c51",
     "semantic_hash": ""
   },
   "src/components/templates/AppLayout/AppLayout.tsx": {
@@ -650,8 +650,8 @@
     "semantic_hash": ""
   },
   "src/pages/aseguradora/GestionClientesPage.tsx": {
-    "mtime": 1784507067.5737524,
-    "ast_hash": "ddc6f62c6460268bfc04f14ca216e828",
+    "mtime": 1784782182.5570462,
+    "ast_hash": "bdf03a8f12061033936f20f358cb7418",
     "semantic_hash": ""
   },
   "src/pages/aseguradora/GestionTalleresPage.tsx": {
@@ -660,8 +660,8 @@
     "semantic_hash": ""
   },
   "src/pages/aseguradora/GestionVehiculosPage.tsx": {
-    "mtime": 1784507090.0535479,
-    "ast_hash": "5f5ca9fbb6de18934dce1ed99b86826c",
+    "mtime": 1784773064.3283007,
+    "ast_hash": "99294e8c954b7e0d594e8614d448304e",
     "semantic_hash": ""
   },
   "src/pages/aseguradora/TableroGeneralPage.tsx": {
@@ -877,6 +877,26 @@
   "SOLICITUD_BACKEND_AUDITORIA.md": {
     "mtime": 1784496315.7389565,
     "ast_hash": "cba7bfffb0235c3c82bc407322802974",
+    "semantic_hash": ""
+  },
+  "src/api/aseguradora/ocr/ocr.routes.ts": {
+    "mtime": 1784772966.9853065,
+    "ast_hash": "e776df7b026e727f8c1e90f76335bb64",
+    "semantic_hash": ""
+  },
+  "src/api/aseguradora/ocr/ocr.schemas.ts": {
+    "mtime": 1784772962.5548344,
+    "ast_hash": "8bbb715989bbc97943ba4541b7adf8fc",
+    "semantic_hash": ""
+  },
+  "src/components/organisms/DetailModal/DetailModal.tsx": {
+    "mtime": 1784782088.7200108,
+    "ast_hash": "bfc80c40af4be6a5738f06a0adaad1d7",
+    "semantic_hash": ""
+  },
+  "src/components/organisms/DetailModal/index.ts": {
+    "mtime": 1784782091.6939385,
+    "ast_hash": "3bd4963acef6e5ceffeab4599429b937",
     "semantic_hash": ""
   }
 }

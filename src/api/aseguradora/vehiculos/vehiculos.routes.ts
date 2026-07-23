@@ -35,14 +35,6 @@ export async function create(clienteId: string, data: VehiculoCreateInput): Prom
   return vehiculoBackendToFrontend(res)
 }
 
-export async function createFromPoliza(clienteId: string, file: File): Promise<Vehiculo> {
-  const formData = new FormData()
-  formData.append('cliente_id', clienteId)
-  formData.append('file', file)
-  const res = await api.postForm<VehiculoResponseDTO>('/aseguradora/crud/vehiculos/from-poliza', formData)
-  return vehiculoBackendToFrontend(res)
-}
-
 export async function update(id: string, data: VehiculoCreateInput): Promise<Vehiculo> {
   const dto: VehiculoUpdateDTO = {
     marca: data.marca,

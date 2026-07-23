@@ -197,5 +197,6 @@
   "195": "UpdateSuscripcionDTO",
   "196": "UsuarioRequestDTO",
   "197": "UsuarioResponseDTO",
-  "198": "usuarioResponseToFrontend"
+  "198": "usuarioResponseToFrontend",
+  "199": "index.ts"
 }

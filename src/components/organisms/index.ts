@@ -13,6 +13,9 @@ export type { Column, DataTableProps, StatusVariant } from './DataTable'
 export { CrudModal } from './CrudModal'
 export type { CrudModalProps } from './CrudModal'
 
+export { DetailModal } from './DetailModal'
+export type { DetailModalProps } from './DetailModal'
+
 export { AuthGuard, GuestGuard } from './AuthGuard'
 export type { AuthGuardProps } from './AuthGuard'
 
