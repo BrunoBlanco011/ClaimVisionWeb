@@ -29,6 +29,11 @@ function extensionDe(url: string): string {
   return match ? match[1] : 'pdf'
 }
 
+function bucketDe(url: string): string | null {
+  const match = url.match(/\/storage\/v1\/object\/(?:public|sign|authenticated)\/([^/]+)\//)
+  return match ? match[1] : null
+}
+
 const ETIQUETA_DOCUMENTO: Record<'identificacion' | 'poliza', string> = {
   identificacion: 'Identificación',
   poliza: 'Póliza',
@@ -52,9 +57,21 @@ function DocumentoRow({
     if (!documento) return
     setIsDownloading(true)
     const nombreArchivo = `${slugify(nombreCliente)}_${clave}.${extensionDe(documento.url)}`
+    const bucket = bucketDe(documento.url)
     try {
       const res = await fetch(documento.url)
-      if (!res.ok) throw new Error('No se pudo descargar el archivo')
+      if (!res.ok) {
+        const cuerpo = await res.text().catch(() => '(sin cuerpo)')
+        console.error('[Documentos cliente] Fallo al descargar el archivo', {
+          documento: clave,
+          url: documento.url,
+          bucket,
+          status: res.status,
+          statusText: res.statusText,
+          cuerpo,
+        })
+        throw new Error('download-failed')
+      }
       const blob = await res.blob()
       const blobUrl = URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -62,7 +79,15 @@ function DocumentoRow({
       link.download = nombreArchivo
       link.click()
       URL.revokeObjectURL(blobUrl)
-    } catch {
+    } catch (err) {
+      if (!(err instanceof Error && err.message === 'download-failed')) {
+        console.error('[Documentos cliente] Error de red al pedir el archivo (sin respuesta del servidor)', {
+          documento: clave,
+          url: documento.url,
+          bucket,
+          error: err,
+        })
+      }
       window.open(documento.url, '_blank', 'noopener,noreferrer')
       addToast('error', 'No se pudo descargar directamente el archivo, se abrió en una pestaña nueva')
     } finally {
@@ -128,8 +153,18 @@ export function GestionClientesPage() {
     setDocumentos(null)
     setIsLoadingDocumentos(true)
     getDocumentos(cliente.id)
-      .then(setDocumentos)
-      .catch((err) => addToast('error', getErrorMessage(err, 'No se pudieron cargar los documentos del cliente')))
+      .then((docs) => {
+        console.info('[Documentos cliente] GET documentos OK', {
+          cliente: cliente.id,
+          identificacion: docs.identificacion && { url: docs.identificacion.url, bucket: bucketDe(docs.identificacion.url) },
+          poliza: docs.poliza && { url: docs.poliza.url, bucket: bucketDe(docs.poliza.url) },
+        })
+        setDocumentos(docs)
+      })
+      .catch((err) => {
+        console.error('[Documentos cliente] GET documentos falló', { cliente: cliente.id, error: err })
+        addToast('error', getErrorMessage(err, 'No se pudieron cargar los documentos del cliente'))
+      })
       .finally(() => setIsLoadingDocumentos(false))
   }
 
